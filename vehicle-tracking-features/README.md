@@ -2,6 +2,12 @@
 ```
 pip3 install requirements.txt
 ```
+
+# Prerequisite for running carplate.py  
+(However the algorithm still need a lot of improvement)
+```
+1. setup aws credentials by running this command: aws configure  
+```
 ### How to run it
 For car detection and tracking
 ```
@@ -29,9 +35,3 @@ Display vehicle speed: set self.speed = True
 Display vehicle stay in a place: set self.stay = True  
 Toll vehicle checking: set self.toll = True  
 Display current total number of vehicle in current frame: set self.countTraffic = True  
-
-# Prerequisite for running carplate.py  
-(However the algorithm still need a lot of improvement)
-```
-1. setup aws credentials by running this command: aws configure  
-```
