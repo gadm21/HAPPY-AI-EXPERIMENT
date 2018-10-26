@@ -20,14 +20,14 @@ For car plate detection
 python3 carplate.py --video 'video/A0026.mpg' --width 704 --height 576
 ```
 
-# Use other trained models for running detect.py  
+### Use other trained models for running detect.py  
 ```
 1. Download Tensorflow model that in COCO-trained models. High COCO mAP would be better but very slow.  
 https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md  
 2. Extract the trained-models in model folder.  
 3. python3 detect.py --video <video> --model <modelname>
 ```
-# Detail about detect.py
+### Detail about detect.py
 File option.py can allow some feature stated below. 
 
 Feature:
