@@ -1,18 +1,35 @@
 import cv2
 import boto3
+import argparse
+import sys
 
+def parse_arguments(argv):
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--video',type=str,help='video path/ip address')
+	parser.add_argument('--width',default=640,type=int,help='the width of video output')
+	parser.add_argument('--height',default=480,type=int,help='the height of video output')
+	parser.add_argument('--output',default='output/output.mp4',type=str,help='output video path')
+	return parser.parse_args(argv)
 
-if __name__ == "__main__":
+def main(args):
+	if args.video is None:
+		video_src = 0
+	else:
+		video_src = args.video
+
+	width = args.width
+	height = args.height
+	output = args.output
+
 	client=boto3.client('rekognition','us-east-2')
 	outputVideoFPS = 60
-	video_src = 'video/A0026.mpg'
 	video_capture = cv2.VideoCapture(video_src)
 	frame_count = 0
 	frame_interval = 30
 
-	saveVideo = 'output/output.mp4'
+	output = 'output/output.mp4'
 	fourcc  = cv2.VideoWriter_fourcc(*'MP4V')
-	# out = cv2.VideoWriter(saveVideo,fourcc,20.0,(640,480))
+	# out = cv2.VideoWriter(output,fourcc,20.0,(640,480))
 	first = True
 	num = 0
 	carplate = None
@@ -21,7 +38,7 @@ if __name__ == "__main__":
 		num += 1
 		# print(num)
 		flags,frame = video_capture.read()
-
+		frame = cv2.resize(frame,(width,height))
 
 		if flags == False:
 			break
@@ -29,7 +46,7 @@ if __name__ == "__main__":
 		im_height, im_width, _ = frame.shape
 
 		if first:
-			out = cv2.VideoWriter(saveVideo,fourcc,outputVideoFPS,(im_width,im_height))
+			out = cv2.VideoWriter(output,fourcc,outputVideoFPS,(im_width,im_height))
 			first = False
 
 		if (frame_count%frame_interval)==0:
@@ -102,3 +119,7 @@ if __name__ == "__main__":
 	video_capture.release()
 	out.release()
 	cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+	main(parse_arguments(sys.argv[1:]))

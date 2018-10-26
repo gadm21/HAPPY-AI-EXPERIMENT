@@ -4,10 +4,10 @@ import time
 import argparse
 import numpy as np
 import tensorflow as tf
+import sys
 
 from utils import label_map_util
 from utils import visualization_utils as vis_util
-
 
 import track.tracker as track
 import color.image_processor as colorDetector
@@ -19,29 +19,7 @@ import vehicle as veh
 
 import option
 
-opt = option.option()
-
-tracker = track.Tracker()
-
-CWD_PATH = os.getcwd()
-
-# Path to frozen detection graph. This is the actual model that is used for the object detection.
-MODEL_NAME = 'ssd_mobilenet_v1_coco_2018_01_28'
-
-PATH_TO_CKPT = os.path.join(CWD_PATH, 'model', MODEL_NAME, 'frozen_inference_graph.pb')
-
-# List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join(CWD_PATH, 'label', 'mscoco_label_map.pbtxt')
-
-NUM_CLASSES = 90
-
-# Loading label map
-label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
-categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES,
-															use_display_name=True)
-category_index = label_map_util.create_category_index(categories)
-
-vehicleClass = ['bicycle','car','motorcycle','bus','truck']
+import argparse
 
 def detect_objects(image_np, sess, detection_graph):
 	# Expand dimensions since the model expects images to have shape: [1, None, None, 3]
@@ -153,40 +131,70 @@ def drawTrackedObject(imgDisplay):
 						0.4, (255, 255, 255), 1)
 			counter += 10
 
-detection_graph = tf.Graph()
-with detection_graph.as_default():
-	od_graph_def = tf.GraphDef()
-	with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
-		serialized_graph = fid.read()
-		od_graph_def.ParseFromString(serialized_graph)
-		tf.import_graph_def(od_graph_def, name='')
+def parse_arguments(argv):
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--video',type=str,help='video path/ip address')
+	parser.add_argument('--width',default=640,type=int,help='the width of video output')
+	parser.add_argument('--height',default=480,type=int,help='the height of video output')
+	parser.add_argument('--output',default='output/output.mp4',type=str,help='output video path')
+	parser.add_argument('--model',default='ssd_mobilenet_v1_coco_2018_01_28',type=str,help='model name folder in model')
+	return parser.parse_args(argv)
 
-	sess = tf.Session(graph=detection_graph)
+def main(args):
+	if args.video is None:
+		video_src = 0
+	else:
+		video_src = args.video
+	# video_src = 'rtsp://admin:admin123@tapway2.dahuaddns.com/cam/realmonitor?channel=1&subtype=0'
 
-if __name__ == '__main__':    
-	video_src = 'video/A0067.mov'
+	width = args.width
+	height = args.height
+	output = args.output
+	MODEL_NAME = args.model
+
 	video_capture = cv2.VideoCapture(video_src)
 
 	frame_count = 0
 	frame_interval = 10
 
-	# tracker.vehicleList = {}
-
 	currentTrackID = 0
 
-	saveVideo = 'output/output.mp4'
 	fourcc  = cv2.VideoWriter_fourcc(*'MP4V')
-	# out = cv2.VideoWriter(saveVideo,fourcc,20.0,(640,480))
+	# out = cv2.VideoWriter(output,fourcc,20.0,(640,480))
 	first = True
 	num = 0
 	pcount = 0 ## toll count
 	ccount = 0
 	status = None
+
+	opt = option.option()
+
+	tracker = track.Tracker()
+
+	CWD_PATH = os.getcwd()
+
+	# Path to frozen detection graph. This is the actual model that is used for the object detection.
+	PATH_TO_CKPT = os.path.join(CWD_PATH, 'model', MODEL_NAME, 'frozen_inference_graph.pb')
+
+	# List of the strings that is used to add correct label for each box.
+	PATH_TO_LABELS = os.path.join(CWD_PATH, 'label', 'mscoco_label_map.pbtxt')
+
+	NUM_CLASSES = 90
+
+	# Loading label map
+	label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
+	categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES,
+																use_display_name=True)
+	category_index = label_map_util.create_category_index(categories)
+
+	vehicleClass = ['bicycle','car','motorcycle','bus','truck']
+
 	while True:  # fps._numFrames < 120
 		num += 1
 		if opt.debug:
 			print(num)
 		flags,frame = video_capture.read()
+		frame = cv2.resize(frame,(width,height))
 		imgt = Image.fromarray(frame.copy())
 
 		converter = ImageEnhance.Color(imgt)
@@ -201,7 +209,7 @@ if __name__ == '__main__':
 		tracker.videoFrameSize = frame.shape
 
 		if first:
-			out = cv2.VideoWriter(saveVideo,fourcc,opt.outputVideoFPS,(im_width,im_height))
+			out = cv2.VideoWriter(output,fourcc,opt.outputVideoFPS,(im_width,im_height))
 			first = False
 
 		tracker.deleteTrack(frame.copy())
@@ -353,3 +361,41 @@ if __name__ == '__main__':
 	video_capture.release()
 	out.release()
 	cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+	opt = option.option()
+
+	tracker = track.Tracker()
+
+	CWD_PATH = os.getcwd()
+
+	# Path to frozen detection graph. This is the actual model that is used for the object detection.
+	MODEL_NAME = 'ssd_mobilenet_v1_coco_2018_01_28'
+
+	PATH_TO_CKPT = os.path.join(CWD_PATH, 'model', MODEL_NAME, 'frozen_inference_graph.pb')
+
+	# List of the strings that is used to add correct label for each box.
+	PATH_TO_LABELS = os.path.join(CWD_PATH, 'label', 'mscoco_label_map.pbtxt')
+
+	NUM_CLASSES = 90
+
+	# Loading label map
+	label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
+	categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES,
+																use_display_name=True)
+	category_index = label_map_util.create_category_index(categories)
+
+	vehicleClass = ['bicycle','car','motorcycle','bus','truck']
+
+	detection_graph = tf.Graph()
+	with detection_graph.as_default():
+		od_graph_def = tf.GraphDef()
+		with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
+			serialized_graph = fid.read()
+			od_graph_def.ParseFromString(serialized_graph)
+			tf.import_graph_def(od_graph_def, name='')
+
+		sess = tf.Session(graph=detection_graph)
+	
+	main(parse_arguments(sys.argv[1:]))
+
