@@ -16,5 +16,6 @@ Toll vehicle checking: set self.toll = True
 Display current total number of vehicle in current frame: set self.countTraffic = True  
 
 # carplate.py - detect car plate by using aws rekognition service  
+(However the algorithm still need a lot of improvement)  
 1. setup aws credentials by running this command: aws configure  
 2. Put your video in video folder and change license.py video_src to your video path.  
