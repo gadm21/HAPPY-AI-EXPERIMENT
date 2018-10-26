@@ -1,10 +1,15 @@
-# detect.py - car detection and tracking  
-
+### Install
+```
+pip3 install requirements.txt
+```
+# run detect.py - car detection and tracking  
+```
 1. Download Tensorflow model that in COCO-trained models. High COCO mAP would be better but very slow.  
 https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md  
-2. Put the trained-models in model folder.  
+2. Extract the trained-models in model folder.  
 3. Put your video in video folder and change detect.py video_src to your video path.
-
+4. python3 detect.py
+```
 File option.py can allow some feature stated below. 
 
 Feature:
@@ -16,6 +21,8 @@ Toll vehicle checking: set self.toll = True
 Display current total number of vehicle in current frame: set self.countTraffic = True  
 
 # carplate.py - detect car plate by using aws rekognition service  
-(However the algorithm still need a lot of improvement)  
+(However the algorithm still need a lot of improvement)
+```
 1. setup aws credentials by running this command: aws configure  
-2. Put your video in video folder and change license.py video_src to your video path.  
+2. Put your video in video folder and change license.py video_src to your video path.
+```
