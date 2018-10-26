@@ -1,0 +1,46 @@
+swagger: '2.0'
+info:
+  title: AI API
+  description: Wrapper for tapway recognition modules
+  version: "0.1"
+consumes:
+- application/json
+produces:
+- application/json
+tags:
+  - name: cars tracking
+
+paths:
+  /plates:
+    post:
+      tags:
+        - cars tracking
+      consumes:
+        - text/plain
+      operationId: ai_api.car_plate_detection.process
+      summary: Recognize plate numbers from video file
+      parameters:
+      - name: path
+        in: body
+        required: true
+        schema:
+          type: string
+        description: path to video
+      responses:
+        200:
+          description: Return recognized plate numbers
+          schema:
+            $ref: '#/definitions/PlatesNumbers'
+
+definitions:
+  PlatesNumbers:
+    type: object
+    description: A list of of recognized numbers
+    required:
+    - values
+    properties:
+      values:
+        type: array
+        items:
+          type: string
+

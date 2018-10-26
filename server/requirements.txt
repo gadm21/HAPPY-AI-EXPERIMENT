@@ -1,0 +1,15 @@
+alembic
+arrow
+attrs
+awsebcli
+connexion
+Flask-Migrate
+flask-sqlalchemy
+gevent
+psycopg2-binary
+pytest
+pytest-env
+pytest-flask
+pytest-pycharm
+pytest-xdist
+black
