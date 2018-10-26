@@ -5,7 +5,7 @@ pip3 install requirements.txt
 ### How to run it
 For car detection and tracking
 ```
-python3 detect.py
+python3 detect.py --video 'rtsp://admin:admin123@tapway2.dahuaddns.com/cam/realmonitor?channel=1&subtype=0'
 ```
 For car plate detection
 ```
