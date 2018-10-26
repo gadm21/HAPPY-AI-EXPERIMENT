@@ -1,9 +1,9 @@
+# detect.py - car detection and tracking  
+
 1. Download Tensorflow model that in COCO-trained models. High COCO mAP would be better but very slow.  
 https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md  
 2. Put the trained-models in model folder.  
-3. Put your video in video folder and change detect.py video_src to your video path.  
-  
-# detect.py - car detection and tracking  
+3. Put your video in video folder and change detect.py video_src to your video path.
 
 File option.py can allow some feature stated below. 
 
