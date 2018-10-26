@@ -2,8 +2,10 @@
 ```
 pip3 install requirements.txt
 ```
+### Prerequisite for running detect.py  
+none  
 
-# Prerequisite for running carplate.py  
+### Prerequisite for running carplate.py  
 (However the algorithm still need a lot of improvement)
 ```
 1. setup aws credentials by running this command: aws configure  
