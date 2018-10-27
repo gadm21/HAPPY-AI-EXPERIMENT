@@ -10,10 +10,11 @@ pytest = "*"
 pytest-env = "*"
 pytest-flask = "*"
 pytest-pycharm = "*"
+v = {version = "*", editable = true}
 
 [packages]
 alembic = "*"
-connexion = "*"
+connexion = {version = "*", extras = ["swagger-ui"]}
 flask-migrate = "*"
 flask-sqlalchemy = "*"
 gevent = "*"
