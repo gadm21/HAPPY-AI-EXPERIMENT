@@ -25,7 +25,7 @@ Each script is independent of each other and is written to comply with requireme
 
 `-m` parameter should be the path to the Tensorflow Object Detection frozen graph (*.pb file)
 `-i` parameter is the path to video file for processing (any format that opencv supports)
-`-o` parameter is the path to save the processed video file (*.avi file format)
+`-o` parameter is the path to save the processed video file (*.avi file format) [optional]
 
 Use `-h` for more information on each file's usage.
 
