@@ -1,5 +1,0 @@
-imutils
-numpy
-opencv-python
-scikit-image
-tensorflow

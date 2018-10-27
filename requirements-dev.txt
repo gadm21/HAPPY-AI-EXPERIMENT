@@ -1,6 +1,0 @@
-black
-ipython
-pytest
-pytest-env
-pytest-flask
-pytest-pycharm

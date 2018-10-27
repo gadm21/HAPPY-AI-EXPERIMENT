@@ -1,5 +1,0 @@
-alembic
-connexion
-Flask-Migrate
-flask-sqlalchemy
-gevent
