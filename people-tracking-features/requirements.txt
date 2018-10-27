@@ -1,5 +1,5 @@
 imutils
-scikit-image
-opencv-python
-tensorflow
 numpy
+opencv-python
+scikit-image
+tensorflow
