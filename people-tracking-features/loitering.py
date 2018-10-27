@@ -173,4 +173,5 @@ if __name__ == "__main__":
             key = cv2.waitKey(1)
             if key & 0xFF == ord('q'):
                 break
-        raise RuntimeError('No more frame')
+        else:
+            raise RuntimeError('No more frame')
