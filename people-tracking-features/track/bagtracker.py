@@ -1,6 +1,7 @@
 import dlib
 import numpy as np
 
+
 class Tracker:
     def __init__(self, *args, **kwargs):
         self.faceTrackers = {}
@@ -13,7 +14,7 @@ class Tracker:
         self.owner = {}
         self.abandoned = {}
 
-    def checkOwner(self,humantracker):
+    def checkOwner(self, humantracker):
         for id in self.faceTrackers.keys():
             if self.owner[id] is None:
                 tracked_position = self.faceTrackers[id].get_position()
@@ -24,7 +25,7 @@ class Tracker:
                 x_bar = x + 0.5 * w
                 y_bar = y + 0.5 * h
                 a = np.array((x_bar, y_bar))
-                min_dist = float('inf')
+                min_dist = float("inf")
                 min_owner = None
                 for fid in humantracker.faceTrackers.keys():
                     tracked_position = humantracker.faceTrackers[fid].get_position()
@@ -38,11 +39,11 @@ class Tracker:
                     b = np.array((t_x_bar, t_y_bar))
 
                     dist = np.linalg.norm(a - b)
-                    if dist<min_dist:
-                        min_dist=dist
+                    if dist < min_dist:
+                        min_dist = dist
                         min_owner = fid
 
-                if min_dist<200:
+                if min_dist < 200:
                     self.owner[id] = min_owner
                     self.abandoned[id] = False
             else:
@@ -51,10 +52,7 @@ class Tracker:
                 else:
                     self.abandoned[id] = True
 
-
-
-
-    def createTrack(self, imgDisplay, boundingBox, currentFaceID,score):
+    def createTrack(self, imgDisplay, boundingBox, currentFaceID, score):
 
         x1, y1, x2, y2 = boundingBox
 
@@ -63,7 +61,7 @@ class Tracker:
         x = int(x1)
         y = int(y1)
 
-        print('Creating new seat tracker' + str(currentFaceID))
+        print("Creating new seat tracker" + str(currentFaceID))
         tracker = dlib.correlation_tracker()
         # tracker.start_track(imgDisplay,dlib.rectangle(x-10,y-10,x+w+10,y+h+10))
         tracker.start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
@@ -131,10 +129,10 @@ class Tracker:
 
         while len(self.fidsToDelete) > 0:
             fid = self.fidsToDelete.pop()
-            self.scores.pop(fid,None)
+            self.scores.pop(fid, None)
             self.faceTrackers.pop(fid, None)
-            self.owner.pop(fid,None)
-            self.abandoned.pop(fid,None)
+            self.owner.pop(fid, None)
+            self.abandoned.pop(fid, None)
 
     def getMatchId(self, imgDisplay, boundingBox):
 
@@ -161,14 +159,18 @@ class Tracker:
             t_x_bar = t_x + 0.5 * t_w
             t_y_bar = t_y + 0.5 * t_h
 
-            if ((t_x <= x_bar <= (t_x + t_w)) and
-                    (t_y <= y_bar <= (t_y + t_h)) and
-                    (x <= t_x_bar <= (x + w)) and
-                    (y <= t_y_bar <= (y + h))):
+            if (
+                (t_x <= x_bar <= (t_x + t_w))
+                and (t_y <= y_bar <= (t_y + t_h))
+                and (x <= t_x_bar <= (x + w))
+                and (y <= t_y_bar <= (y + h))
+            ):
                 matchedFid = fid
 
                 # self.faceTrackers[fid].start_track(imgDisplay,dlib.rectangle(x-10,y-20,x+w+10,y+h+20))
-                self.faceTrackers[fid].start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
+                self.faceTrackers[fid].start_track(
+                    imgDisplay, dlib.rectangle(x, y, x + w, y + h)
+                )
             # self.faceTrackers[fid].start_track(imgDisplay,dlib.rectangle(x-50,y-50,x+w+50,y+h+50))
 
         return matchedFid
@@ -196,9 +198,8 @@ class Tracker:
                 t_x_bar = t_x + 0.5 * t_w
                 t_y_bar = t_y + 0.5 * t_h
 
-                if (((t_x <= x_bar <= (t_x + t_w)) and
-                     (t_y <= y_bar <= (t_y + t_h))) and
-                        ((x <= t_x_bar <= (x + w)) and
-                         (y <= t_y_bar <= (y + h)))):
+                if (
+                    (t_x <= x_bar <= (t_x + t_w)) and (t_y <= y_bar <= (t_y + t_h))
+                ) and ((x <= t_x_bar <= (x + w)) and (y <= t_y_bar <= (y + h))):
                     self.faceTrackers.pop(id, None)
-                    print('delete overlap {}, {}'.format(id, fid))
+                    print("delete overlap {}, {}".format(id, fid))

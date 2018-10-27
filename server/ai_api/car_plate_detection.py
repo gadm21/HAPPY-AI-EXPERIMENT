@@ -1,2 +1,2 @@
 def process(path):
-    return ['sssssss', 'xxxxxxx']
+    return ["sssssss", "xxxxxxx"]

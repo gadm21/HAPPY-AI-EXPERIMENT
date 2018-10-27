@@ -2,6 +2,7 @@ import dlib
 import numpy as np
 import cv2
 
+
 class Tracker:
     def __init__(self, *args, **kwargs):
         self.faceTrackers = {}
@@ -21,9 +22,11 @@ class Tracker:
         x = int(x1)
         y = int(y1)
 
-        print('Creating new seat tracker' + str(currentFaceID))
+        print("Creating new seat tracker" + str(currentFaceID))
         tracker = dlib.correlation_tracker()
-        tracker.start_track(imgDisplay,dlib.rectangle(x-20,y-20,x+w+20,y+h+20))
+        tracker.start_track(
+            imgDisplay, dlib.rectangle(x - 20, y - 20, x + w + 20, y + h + 20)
+        )
         # tracker.start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
         # tracker.start_track(imgDisplay,dlib.rectangle(x-50,y-50,x+w+50,y+h+50))
 
@@ -71,7 +74,7 @@ class Tracker:
 
         return relativeOutScreen
 
-    def check_status(self,imgDisplay):
+    def check_status(self, imgDisplay):
         img = imgDisplay.copy()
         for fid in self.faceTrackers.keys():
             tracked_position = self.faceTrackers[fid].get_position()
@@ -80,11 +83,11 @@ class Tracker:
             t_y = int(tracked_position.top())
             t_w = int(tracked_position.width())
             t_h = int(tracked_position.height())
-            light_img = img[t_y:t_y+t_h, t_x:t_x+t_w]
+            light_img = img[t_y : t_y + t_h, t_x : t_x + t_w]
             gray = cv2.cvtColor(light_img, cv2.COLOR_BGR2GRAY)
             thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)[1]
             numPixels = cv2.countNonZero(thresh)
-            if numPixels>100:
+            if numPixels > 100:
                 self.light[fid] = True
             else:
                 self.light[fid] = False
@@ -107,7 +110,7 @@ class Tracker:
         while len(self.fidsToDelete) > 0:
             fid = self.fidsToDelete.pop()
             self.faceTrackers.pop(fid, None)
-            self.light.pop(fid,None)
+            self.light.pop(fid, None)
 
     def getMatchId(self, imgDisplay, boundingBox):
 
@@ -134,13 +137,17 @@ class Tracker:
             t_x_bar = t_x + 0.5 * t_w
             t_y_bar = t_y + 0.5 * t_h
 
-            if ((t_x <= x_bar <= (t_x + t_w)) and
-                    (t_y <= y_bar <= (t_y + t_h)) or
-                    (x <= t_x_bar <= (x + w)) and
-                    (y <= t_y_bar <= (y + h))):
+            if (
+                (t_x <= x_bar <= (t_x + t_w))
+                and (t_y <= y_bar <= (t_y + t_h))
+                or (x <= t_x_bar <= (x + w))
+                and (y <= t_y_bar <= (y + h))
+            ):
                 matchedFid = fid
 
-                self.faceTrackers[fid].start_track(imgDisplay,dlib.rectangle(x-20,y-20,x+w+20,y+h+20))
+                self.faceTrackers[fid].start_track(
+                    imgDisplay, dlib.rectangle(x - 20, y - 20, x + w + 20, y + h + 20)
+                )
                 # self.faceTrackers[fid].start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
                 # self.faceTrackers[fid].start_track(imgDisplay,dlib.rectangle(x-50,y-50,x+w+50,y+h+50))
 
@@ -169,9 +176,8 @@ class Tracker:
                 t_x_bar = t_x + 0.5 * t_w
                 t_y_bar = t_y + 0.5 * t_h
 
-                if (((t_x <= x_bar <= (t_x + t_w)) and
-                     (t_y <= y_bar <= (t_y + t_h))) and
-                        ((x <= t_x_bar <= (x + w)) and
-                         (y <= t_y_bar <= (y + h)))):
+                if (
+                    (t_x <= x_bar <= (t_x + t_w)) and (t_y <= y_bar <= (t_y + t_h))
+                ) and ((x <= t_x_bar <= (x + w)) and (y <= t_y_bar <= (y + h))):
                     self.faceTrackers.pop(id, None)
-                    print('delete overlap {}, {}'.format(id, fid))
+                    print("delete overlap {}, {}".format(id, fid))
