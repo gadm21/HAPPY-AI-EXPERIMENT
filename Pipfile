@@ -10,17 +10,17 @@ pytest = "*"
 pytest-env = "*"
 pytest-flask = "*"
 pytest-pycharm = "*"
+v = {version = "*", editable = true}
 
 [packages]
 alembic = "*"
-connexion = "*"
+connexion = {version = "*", extras = ["swagger-ui"]}
 flask-migrate = "*"
 flask-sqlalchemy = "*"
 gevent = "*"
 imutils = "*"
 scikit-image = "*"
 opencv-python = "*"
-tensorflow = "*"
 numpy = "*"
 "boto3" = "*"
 cmake = "*"
@@ -30,6 +30,7 @@ pandas = "*"
 pillow = "*"
 scikit-learn = "*"
 scipy = "*"
+tensorflow = "*"
 
 [requires]
 python_version = "3.6"
