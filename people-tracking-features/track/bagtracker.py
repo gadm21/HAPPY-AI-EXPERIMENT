@@ -1,6 +1,7 @@
 import dlib
 import numpy as np
 
+
 class Tracker:
     def __init__(self, *args, **kwargs):
         self.faceTrackers = {}
@@ -13,7 +14,7 @@ class Tracker:
         self.owner = {}
         self.abandoned = {}
 
-    def checkOwner(self,humantracker):
+    def checkOwner(self, humantracker):
         for id in self.faceTrackers.keys():
             if self.owner[id] is None:
                 tracked_position = self.faceTrackers[id].get_position()
@@ -38,11 +39,11 @@ class Tracker:
                     b = np.array((t_x_bar, t_y_bar))
 
                     dist = np.linalg.norm(a - b)
-                    if dist<min_dist:
-                        min_dist=dist
+                    if dist < min_dist:
+                        min_dist = dist
                         min_owner = fid
 
-                if min_dist<200:
+                if min_dist < 200:
                     self.owner[id] = min_owner
                     self.abandoned[id] = False
             else:
@@ -51,10 +52,7 @@ class Tracker:
                 else:
                     self.abandoned[id] = True
 
-
-
-
-    def createTrack(self, imgDisplay, boundingBox, currentFaceID,score):
+    def createTrack(self, imgDisplay, boundingBox, currentFaceID, score):
 
         x1, y1, x2, y2 = boundingBox
 
@@ -131,10 +129,10 @@ class Tracker:
 
         while len(self.fidsToDelete) > 0:
             fid = self.fidsToDelete.pop()
-            self.scores.pop(fid,None)
+            self.scores.pop(fid, None)
             self.faceTrackers.pop(fid, None)
-            self.owner.pop(fid,None)
-            self.abandoned.pop(fid,None)
+            self.owner.pop(fid, None)
+            self.abandoned.pop(fid, None)
 
     def getMatchId(self, imgDisplay, boundingBox):
 

@@ -25,7 +25,7 @@ class Tracker:
     def getTimeInSecond(self, fid):
         return self.timeStayed[fid] / self.fps
 
-    def createTrack(self, imgDisplay, boundingBox, currentFaceID, score,type):
+    def createTrack(self, imgDisplay, boundingBox, currentFaceID, score, type=None):
 
         x1, y1, x2, y2 = boundingBox
 
@@ -162,7 +162,7 @@ class Tracker:
             self.timeStayed.pop(fid, None)
             self.direction.pop(fid, None)
             self.directionMemory.pop(fid, None)
-            self.isStopped.pop(fid,None)
+            self.isStopped.pop(fid, None)
         self.updateTime()
 
     def getMatchId(self, imgDisplay, boundingBox):
@@ -240,6 +240,6 @@ class Tracker:
             self.faceTrackers.pop(fid, None)
             self.scores.pop(fid, None)
             self.timeStayed.pop(fid, None)
-            self.isStopped.pop(fid,None)
+            self.isStopped.pop(fid, None)
             self.direction.pop(fid, None)
             self.directionMemory.pop(fid, None)

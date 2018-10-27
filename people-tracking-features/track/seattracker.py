@@ -1,6 +1,6 @@
 import dlib
 import numpy as np
-import cv2
+
 
 class Tracker:
     def __init__(self, *args, **kwargs):
@@ -13,7 +13,7 @@ class Tracker:
         self.scores = {}
         self.occupied = {}
 
-    def checkOccupied(self,humantracker):
+    def checkOccupied(self, humantracker):
         for id in self.faceTrackers.keys():
             tracked_position = self.faceTrackers[id].get_position()
             x = int(tracked_position.left())
@@ -34,9 +34,9 @@ class Tracker:
                 t_y_bar = t_y + 0.5 * t_h
 
                 intersect = True
-                if (x+w<t_x or t_x+t_w<x or y+h<t_y or t_y+t_h<y):
+                if (x + w < t_x or t_x + t_w < x or y + h < t_y or t_y + t_h < y):
                     intersect = False
-                if abs(x_bar-t_x_bar)<30 and y_bar>t_y_bar and intersect:
+                if abs(x_bar - t_x_bar) < 30 and y_bar > t_y_bar and intersect:
                     self.occupied[id] = True
                     break
                 else:
@@ -53,12 +53,12 @@ class Tracker:
         unoccupied = 0
         for fid in self.occupied.keys():
             if self.occupied[fid]:
-                occupied+=1
+                occupied += 1
             else:
-                unoccupied+=1
-        return occupied,unoccupied
+                unoccupied += 1
+        return occupied, unoccupied
 
-    def createTrack(self, imgDisplay, boundingBox, currentFaceID,score):
+    def createTrack(self, imgDisplay, boundingBox, currentFaceID, score):
 
         x1, y1, x2, y2 = boundingBox
 
@@ -134,9 +134,9 @@ class Tracker:
 
         while len(self.fidsToDelete) > 0:
             fid = self.fidsToDelete.pop()
-            self.scores.pop(fid,None)
+            self.scores.pop(fid, None)
             self.faceTrackers.pop(fid, None)
-            self.occupied.pop(fid,None)
+            self.occupied.pop(fid, None)
 
     def getMatchId(self, imgDisplay, boundingBox):
 

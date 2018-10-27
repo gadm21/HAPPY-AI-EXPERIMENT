@@ -1,28 +1,25 @@
 # Code adapted from Tensorflow Object Detection Framework
 # https://github.com/tensorflow/models/blob/master/research/object_detection/object_detection_tutorial.ipynb
 # Tensorflow Object Detection Detector
+import argparse
+import sys
+
+import cv2
 import imutils
 import numpy as np
-import tensorflow as tf
-import cv2
-from PIL import Image
 from imutils import contours
 from skimage import measure
-import time
-import track.tracker as track
-import track.seattracker as seattrack
-import track.cartracker as cartrack
-import track.lighttracker as lighttrack
-import math
 
+import track.lighttracker as lighttrack
 
 id = 0
 carid = 0
 frame_interval = 10
 
+
 def drawTrackedLight(imgDisplay):
-    on=0
-    off=0
+    on = 0
+    off = 0
     for fid in lighttracker.faceTrackers.keys():
         tracked_position = lighttracker.faceTrackers[fid].get_position()
         t_x = int(tracked_position.left())
@@ -33,26 +30,27 @@ def drawTrackedLight(imgDisplay):
         status = lighttracker.light[fid]
         if status:
             text = 'L{} On'.format(fid)
-            rectColor = (0,255,0)
-            on+=1
+            rectColor = (0, 255, 0)
+            on += 1
         else:
             text = 'L{} Off'.format(fid)
-            rectColor = (0,0,255)
-            off+=1
+            rectColor = (0, 0, 255)
+            off += 1
 
         textSize = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
         textX = int(t_x + t_w / 2 - (textSize[0]) / 2)
         textY = int(t_y)
-        textLoc = (textX, textY-5)
+        textLoc = (textX, textY - 5)
 
         cv2.rectangle(imgDisplay, (t_x, t_y),
-                      (t_x + t_w , t_y + t_h),
-                      rectColor ,2)
+                      (t_x + t_w, t_y + t_h),
+                      rectColor, 2)
 
         cv2.putText(imgDisplay, text, textLoc,
                     cv2.FONT_HERSHEY_SIMPLEX,
                     1, (255, 255, 255), 2)
-    return on,off
+    return on, off
+
 
 def detect_bright_spot(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -78,19 +76,39 @@ def detect_bright_spot(image):
 
         # if the number of pixels in the component is sufficiently
         # large, then add it to our mask of "large blobs"
-        if numPixels>300 and numPixels<1000:
+        if numPixels > minP and maxP < 1000:
             mask = cv2.add(mask, labelMask)
     return mask
 
 
-lighttracker = lighttrack.Tracker()
-x1 = 0
-y1 = 100
-x2 = 1280
-y2 = 360
-if __name__ == "__main__":
+def check_arg(args=None):
+    parser = argparse.ArgumentParser(description='Script for detecting on or off of lighting')
+    parser.add_argument('-i', '--input',
+                        help='Input video filename',
+                        required=True)
+    parser.add_argument('-o', '--output',
+                        help='Filename for output video',
+                        default='output.avi')
+    parser.add_argument('-m', '--min',
+                        help='Minimum number of pixel to be considered as large blobs',
+                        default=300)
+    parser.add_argument('-M', '--max',
+                        help='Maximum number of pixel to be considered as large blobs',
+                        default=1000)
+    results = parser.parse_args(args)
+    return (results.input,
+            results.output,
+            results.min,
+            results.max)
 
-    cap = cv2.VideoCapture('videos/lighting.mp4')
+
+lighttracker = lighttrack.Tracker()
+minP = None
+maxP = None
+if __name__ == "__main__":
+    input, output, minP, maxP = check_arg(sys.argv[1:])
+
+    cap = cv2.VideoCapture(input)
     flag, frame = cap.read()
     assert flag == True
     height, width, _ = frame.shape
@@ -98,15 +116,15 @@ if __name__ == "__main__":
     fps = cap.get(cv2.CAP_PROP_FPS)
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     frame_count = 0
-    total=0
-    per=1000
+    total = 0
+    per = 1000
     # Define VideoWrite object
     # cv2.VideoWrite('arg1',arg2,arg3,(width,heigh))
     # arg1:output file name
     # arg2:Specify Fourcc code
     # arg3: frames per seconds
     # FourCC is a 4-byte code used to specify video codec
-    out = cv2.VideoWriter('output_videos/light.avi', fourcc, fps, (width, height))
+    out = cv2.VideoWriter(output, fourcc, fps, (width, height))
     # cap.set(cv2.CAP_PROP_POS_FRAMES, 9000)
 
     while True:
@@ -119,33 +137,29 @@ if __name__ == "__main__":
             cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
                                     cv2.CHAIN_APPROX_SIMPLE)
             cnts = cnts[0] if imutils.is_cv2() else cnts[1]
-            if len(cnts)>0:
+            if len(cnts) > 0:
                 cnts = contours.sort_contours(cnts)[0]
                 for (i, c) in enumerate(cnts):
                     # draw the bright spot on the image
                     (x, y, w, h) = cv2.boundingRect(c)
-                    x_bar = x+0.5*w
-                    y_bar = y+0.5*h
-                    if x1<x_bar<x2 and y1<y_bar<y2:
-                        matchedID = lighttracker.getMatchId(img, (x,y,x+w,y+h))
-                        if matchedID is None:
-                            id += 1
-                            lighttracker.createTrack(img, (x,y,x+w,y+h), str(id))
+                    matchedID = lighttracker.getMatchId(img, (x, y, x + w, y + h))
+                    if matchedID is None:
+                        id += 1
+                        lighttracker.createTrack(img, (x, y, x + w, y + h), str(id))
 
-            on,off = drawTrackedLight(img)
+            on, off = drawTrackedLight(img)
 
-            cv2.putText(img, 'On: '+str(on), (0, 50),
+            cv2.putText(img, 'On: ' + str(on), (0, 50),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         2, (0, 255, 0), 2)
-            cv2.putText(img, 'Off: '+str(off), (0, 105),
+            cv2.putText(img, 'Off: ' + str(off), (0, 105),
                         cv2.FONT_HERSHEY_SIMPLEX,
-                        2, (0,0,255), 2)
+                        2, (0, 0, 255), 2)
             out.write(img)
-            frame_count+=1
+            frame_count += 1
             cv2.imshow("preview", img)
             key = cv2.waitKey(1)
             if key & 0xFF == ord('q'):
                 break
         else:
-            break
-
+            raise RuntimeError('No more frame')
