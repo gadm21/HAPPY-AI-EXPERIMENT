@@ -5,7 +5,7 @@ from ai_api import db
 
 
 class ANPR(db.Model):
-    __tablename__ = 'anpr'
+    __tablename__ = "anpr"
 
     id = db.Column(db.Integer, primary_key=True)
     plate_number = db.Column(db.String())

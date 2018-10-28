@@ -9,9 +9,8 @@ from ai_api.config import config
 
 def create_app():
     app = connexion.App(__name__)
-    app.app.config.from_object(
-        config[os.environ.get('APP_MODE', 'development')])
-    app.add_api('swagger.yaml')
+    app.app.config.from_object(config[os.environ.get("APP_MODE", "development")])
+    app.add_api("swagger.yaml")
     return app.app
 
 

@@ -3,123 +3,124 @@ import boto3
 import argparse
 import sys
 
+
 def parse_arguments(argv):
-	parser = argparse.ArgumentParser()
-	parser.add_argument('--video',type=str,help='video path/ip address')
-	parser.add_argument('--width',default=640,type=int,help='the width of video output')
-	parser.add_argument('--height',default=480,type=int,help='the height of video output')
-	parser.add_argument('--output',default='output/output.mp4',type=str,help='output video path')
-	return parser.parse_args(argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--video", type=str, help="video path/ip address")
+    parser.add_argument(
+        "--width", default=640, type=int, help="the width of video output"
+    )
+    parser.add_argument(
+        "--height", default=480, type=int, help="the height of video output"
+    )
+    parser.add_argument(
+        "--output", default="output/output.mp4", type=str, help="output video path"
+    )
+    return parser.parse_args(argv)
+
 
 def main(args):
-	if args.video is None:
-		video_src = 0
-	else:
-		video_src = args.video
+    if args.video is None:
+        video_src = 0
+    else:
+        video_src = args.video
 
-	width = args.width
-	height = args.height
-	output = args.output
+    width = args.width
+    height = args.height
+    output = args.output
 
-	client=boto3.client('rekognition','us-east-2')
-	outputVideoFPS = 60
-	video_capture = cv2.VideoCapture(video_src)
-	frame_count = 0
-	frame_interval = 30
+    client = boto3.client("rekognition", "us-east-2")
+    outputVideoFPS = 60
+    video_capture = cv2.VideoCapture(video_src)
+    frame_count = 0
+    frame_interval = 30
 
-	output = 'output/output.mp4'
-	fourcc  = cv2.VideoWriter_fourcc(*'MP4V')
-	# out = cv2.VideoWriter(output,fourcc,20.0,(640,480))
-	first = True
-	num = 0
-	carplate = None
+    output = "output/output.mp4"
+    fourcc = cv2.VideoWriter_fourcc(*"MP4V")
+    # out = cv2.VideoWriter(output,fourcc,20.0,(640,480))
+    first = True
+    num = 0
+    carplate = None
 
-	while True:  # fps._numFrames < 120
-		num += 1
-		# print(num)
-		flags,frame = video_capture.read()
-		frame = cv2.resize(frame,(width,height))
+    while True:  # fps._numFrames < 120
+        num += 1
+        # print(num)
+        flags, frame = video_capture.read()
+        frame = cv2.resize(frame, (width, height))
 
-		if flags == False:
-			break
+        if flags == False:
+            break
 
-		im_height, im_width, _ = frame.shape
+        im_height, im_width, _ = frame.shape
 
-		if first:
-			out = cv2.VideoWriter(output,fourcc,outputVideoFPS,(im_width,im_height))
-			first = False
+        if first:
+            out = cv2.VideoWriter(output, fourcc, outputVideoFPS, (im_width, im_height))
+            first = False
 
-		if (frame_count%frame_interval)==0:
-			cropRegion = frame[319:492,420:666]
+        if (frame_count % frame_interval) == 0:
+            cropRegion = frame[319:492, 420:666]
 
-			enc = cv2.imencode('.png',cropRegion)[1].tostring()
+            enc = cv2.imencode(".png", cropRegion)[1].tostring()
 
-			response= client.detect_text(
-				Image={
-					'Bytes': enc,
-				}
-			)
-								
-			textDetections=response['TextDetections']
-			# print(response)
-			alpha = None
-			letter = None
-			for text in textDetections:
-				word = text['DetectedText']
-				print('Detected text:' + word)
-				if len(word)<3:
-					continue
-				if len(word)>6 and len(word)<9:
-					carplate = word
-					break
-				if word.isalpha():
-					alpha = word
-					continue
-				if word.isdigit():
-					letter = word
-					continue
-				# print('Confidence: ' + "{:.2f}".format(text['Confidence']) + "%")
-				# print('Id: {}'.format(text['Id']))
-				# if 'ParentId' in text:
-				# 	print('Parent Id: {}'.format(text['ParentId']))
-				# print('Type:' + text['Type'])
-				# print()
-				# bbox = text['Geometry']['BoundingBox']
-				# x1 = bbox['Left']
-				# y1 = bbox['Top']
-				# x2 = x1+bbox['Width']
-				# y2 = y1+bbox['Height']
+            response = client.detect_text(Image={"Bytes": enc})
 
-				# cv2.rectangle(frame, (int(x1),int(y1)),
-				# 			  (int(x2),int(y2)),
-				# 			  (255,0,0),2)
-			if alpha is not None and letter is not None:
-				carplate = alpha+" "+letter
-		textT = 'License plate: '+str(carplate)
+            textDetections = response["TextDetections"]
+            # print(response)
+            alpha = None
+            letter = None
+            for text in textDetections:
+                word = text["DetectedText"]
+                print("Detected text:" + word)
+                if len(word) < 3:
+                    continue
+                if len(word) > 6 and len(word) < 9:
+                    carplate = word
+                    break
+                if word.isalpha():
+                    alpha = word
+                    continue
+                if word.isdigit():
+                    letter = word
+                    continue
+                    # print('Confidence: ' + "{:.2f}".format(text['Confidence']) + "%")
+                    # print('Id: {}'.format(text['Id']))
+                    # if 'ParentId' in text:
+                    # 	print('Parent Id: {}'.format(text['ParentId']))
+                    # print('Type:' + text['Type'])
+                    # print()
+                    # bbox = text['Geometry']['BoundingBox']
+                    # x1 = bbox['Left']
+                    # y1 = bbox['Top']
+                    # x2 = x1+bbox['Width']
+                    # y2 = y1+bbox['Height']
 
-		cv2.putText(frame, textT, (10,50),
-					cv2.FONT_HERSHEY_SIMPLEX,
-					1, (255, 0, 255), 2)
+                    # cv2.rectangle(frame, (int(x1),int(y1)),
+                    # 			  (int(x2),int(y2)),
+                    # 			  (255,0,0),2)
+            if alpha is not None and letter is not None:
+                carplate = alpha + " " + letter
+        textT = "License plate: " + str(carplate)
 
-		cv2.rectangle(frame, (420,319),
-					  (666,492),
-					  (255,0,0),2)            
+        cv2.putText(
+            frame, textT, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2
+        )
 
+        cv2.rectangle(frame, (420, 319), (666, 492), (255, 0, 0), 2)
 
-		out.write(frame)
+        out.write(frame)
 
-		cv2.imshow('Video',frame)
+        cv2.imshow("Video", frame)
 
-		frame_count += 1
-		# cv2.imshow('Video', output_bgr)
+        frame_count += 1
+        # cv2.imshow('Video', output_bgr)
 
-		if cv2.waitKey(1) & 0xFF == ord('q'):
-			break
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
 
-	video_capture.release()
-	out.release()
-	cv2.destroyAllWindows()
+    video_capture.release()
+    out.release()
+    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
-	main(parse_arguments(sys.argv[1:]))
+    main(parse_arguments(sys.argv[1:]))

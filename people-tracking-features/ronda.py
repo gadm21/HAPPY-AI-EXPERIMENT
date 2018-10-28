@@ -11,6 +11,7 @@ import track.seattracker as seattrack
 import track.cartracker as cartrack
 import math
 
+
 class DetectorAPI:
     def __init__(self, path_to_ckpt):
         self.path_to_ckpt = path_to_ckpt
@@ -18,23 +19,31 @@ class DetectorAPI:
         self.detection_graph = tf.Graph()
         with self.detection_graph.as_default():
             od_graph_def = tf.GraphDef()
-            with tf.gfile.GFile(self.path_to_ckpt, 'rb') as fid:
+            with tf.gfile.GFile(self.path_to_ckpt, "rb") as fid:
                 serialized_graph = fid.read()
                 od_graph_def.ParseFromString(serialized_graph)
-                tf.import_graph_def(od_graph_def, name='')
+                tf.import_graph_def(od_graph_def, name="")
 
         self.default_graph = self.detection_graph.as_default()
         self.sess = tf.Session(graph=self.detection_graph)
 
         # Definite input and output Tensors for detection_graph
-        self.image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
+        self.image_tensor = self.detection_graph.get_tensor_by_name("image_tensor:0")
         # Each box represents a part of the image where a particular object was detected.
-        self.detection_boxes = self.detection_graph.get_tensor_by_name('detection_boxes:0')
+        self.detection_boxes = self.detection_graph.get_tensor_by_name(
+            "detection_boxes:0"
+        )
         # Each score represent how level of confidence for each of the objects.
         # Score is shown on the result image, together with the class label.
-        self.detection_scores = self.detection_graph.get_tensor_by_name('detection_scores:0')
-        self.detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')
-        self.num_detections = self.detection_graph.get_tensor_by_name('num_detections:0')
+        self.detection_scores = self.detection_graph.get_tensor_by_name(
+            "detection_scores:0"
+        )
+        self.detection_classes = self.detection_graph.get_tensor_by_name(
+            "detection_classes:0"
+        )
+        self.num_detections = self.detection_graph.get_tensor_by_name(
+            "num_detections:0"
+        )
 
     def processFrame(self, image):
         # Expand dimensions since the trained_model expects images to have shape: [1, None, None, 3]
@@ -42,42 +51,56 @@ class DetectorAPI:
         # Actual detection.
         start_time = time.time()
         (boxes, scores, classes, num) = self.sess.run(
-            [self.detection_boxes, self.detection_scores, self.detection_classes, self.num_detections],
-            feed_dict={self.image_tensor: image_np_expanded})
+            [
+                self.detection_boxes,
+                self.detection_scores,
+                self.detection_classes,
+                self.num_detections,
+            ],
+            feed_dict={self.image_tensor: image_np_expanded},
+        )
         end_time = time.time()
 
         # print("Elapsed Time:", end_time-start_time)
 
-        im_height, im_width,_ = image.shape
+        im_height, im_width, _ = image.shape
         boxes_list = [None for i in range(boxes.shape[1])]
         for i in range(boxes.shape[1]):
-            boxes_list[i] = (int(boxes[0,i,0] * im_height),
-                        int(boxes[0,i,1]*im_width),
-                        int(boxes[0,i,2] * im_height),
-                        int(boxes[0,i,3]*im_width))
+            boxes_list[i] = (
+                int(boxes[0, i, 0] * im_height),
+                int(boxes[0, i, 1] * im_width),
+                int(boxes[0, i, 2] * im_height),
+                int(boxes[0, i, 3] * im_width),
+            )
 
-        return boxes_list, scores[0].tolist(), [int(x) for x in classes[0].tolist()], int(num[0])
+        return (
+            boxes_list,
+            scores[0].tolist(),
+            [int(x) for x in classes[0].tolist()],
+            int(num[0]),
+        )
 
     def close(self):
         self.sess.close()
         self.default_graph.close()
 
+
 class HoughBundler:
-    '''Clasterize and merge each cluster of cv2.HoughLinesP() output
+    """Clasterize and merge each cluster of cv2.HoughLinesP() output
     a = HoughBundler()
     foo = a.process_lines(houghP_lines, binary_image)
-    '''
+    """
 
     def get_orientation(self, line):
-        '''get orientation of a line, using its length
+        """get orientation of a line, using its length
         https://en.wikipedia.org/wiki/Atan2
-        '''
+        """
         orientation = math.atan2(abs((line[0] - line[2])), abs((line[1] - line[3])))
         return math.degrees(orientation)
 
     def checker(self, line_new, groups, min_distance_to_merge, min_angle_to_merge):
-        '''Check if line have enough distance and angle to be count as similar
-        '''
+        """Check if line have enough distance and angle to be count as similar
+        """
         for group in groups:
             # walk through existing line groups
             for line_old in group:
@@ -101,7 +124,7 @@ class HoughBundler:
         x1, y1, x2, y2 = line
 
         def lineMagnitude(x1, y1, x2, y2):
-            'Get line (aka vector) length'
+            "Get line (aka vector) length"
             lineMagnitude = math.sqrt(math.pow((x2 - x1), 2) + math.pow((y2 - y1), 2))
             return lineMagnitude
 
@@ -110,12 +133,12 @@ class HoughBundler:
             DistancePointLine = 9999
             return DistancePointLine
 
-        u1 = (((px - x1) * (x2 - x1)) + ((py - y1) * (y2 - y1)))
+        u1 = ((px - x1) * (x2 - x1)) + ((py - y1) * (y2 - y1))
         u = u1 / (LineMag * LineMag)
 
         if (u < 0.00001) or (u > 1):
-            #// closest point does not fall within the line segment, take the shorter distance
-            #// to an endpoint
+            # // closest point does not fall within the line segment, take the shorter distance
+            # // to an endpoint
             ix = lineMagnitude(px, py, x1, y1)
             iy = lineMagnitude(px, py, x2, y2)
             if ix > iy:
@@ -142,7 +165,7 @@ class HoughBundler:
         return min(dist1, dist2, dist3, dist4)
 
     def merge_lines_pipeline_2(self, lines):
-        'Clusterize (group) lines'
+        "Clusterize (group) lines"
         groups = []  # all lines groups are here
         # Parameters to play with
         min_distance_to_merge = 15
@@ -151,7 +174,9 @@ class HoughBundler:
         groups.append([lines[0]])
         # if line is different from existing gropus, create a new group
         for line_new in lines[1:]:
-            if self.checker(line_new, groups, min_distance_to_merge, min_angle_to_merge):
+            if self.checker(
+                line_new, groups, min_distance_to_merge, min_angle_to_merge
+            ):
                 groups.append([line_new])
 
         return groups
@@ -162,7 +187,7 @@ class HoughBundler:
         orientation = self.get_orientation(lines[0])
 
         # special case
-        if(len(lines) == 1):
+        if len(lines) == 1:
             return [lines[0][:2], lines[0][2:]]
 
         # [[1,2,3,4],[]] to [[1,2],[3,4],[],[]]
@@ -172,10 +197,10 @@ class HoughBundler:
             points.append(line[2:])
         # if vertical
         if 45 < orientation < 135:
-            #sort by y
+            # sort by y
             points = sorted(points, key=lambda point: point[1])
         else:
-            #sort by x
+            # sort by x
             points = sorted(points, key=lambda point: point[0])
 
         # return first and last point in sorted group
@@ -183,21 +208,21 @@ class HoughBundler:
         return [points[0], points[-1]]
 
     def process_lines(self, lines):
-        '''Main function for lines from cv.HoughLinesP() output merging
+        """Main function for lines from cv.HoughLinesP() output merging
         for OpenCV 3
         lines -- cv.HoughLinesP() output
         img -- binary image
-        '''
+        """
         lines_x = []
         lines_y = []
         # for every line of cv2.HoughLinesP()
         for line_i in [l[0] for l in lines]:
-                orientation = self.get_orientation(line_i)
-                # if vertical
-                if 45 < orientation < 135:
-                    lines_y.append(line_i)
-                else:
-                    lines_x.append(line_i)
+            orientation = self.get_orientation(line_i)
+            # if vertical
+            if 45 < orientation < 135:
+                lines_y.append(line_i)
+            else:
+                lines_x.append(line_i)
 
         lines_y = sorted(lines_y, key=lambda line: line[1])
         lines_x = sorted(lines_x, key=lambda line: line[0])
@@ -205,23 +230,24 @@ class HoughBundler:
 
         # for each cluster in vertical and horizantal lines leave only one line
         for i in [lines_x, lines_y]:
-                if len(i) > 0:
-                    groups = self.merge_lines_pipeline_2(i)
-                    merged_lines = []
-                    for group in groups:
-                        merged_lines.append(self.merge_lines_segments1(group))
+            if len(i) > 0:
+                groups = self.merge_lines_pipeline_2(i)
+                merged_lines = []
+                for group in groups:
+                    merged_lines.append(self.merge_lines_segments1(group))
 
-                    merged_lines_all.extend(merged_lines)
+                merged_lines_all.extend(merged_lines)
 
         return merged_lines_all
 
+
 def detect_lanes(imgDisplay):
     # convert to grayscale then black/white to binary image
-    x=4
-    w=316
-    y=36
-    h=45
-    frame = imgDisplay[y:y+h,x:x+w]
+    x = 4
+    w = 316
+    y = 36
+    h = 45
+    frame = imgDisplay[y : y + h, x : x + w]
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     thresh = 240
     frame = cv2.threshold(frame, thresh, 255, cv2.THRESH_BINARY)[1]
@@ -244,21 +270,27 @@ def detect_lanes(imgDisplay):
         threshold=150,
         lines=np.array([]),
         minLineLength=30,
-        maxLineGap=10
+        maxLineGap=10,
     )
     global emergency_lane_lines
     if unmerged_lines is None:
-        emergency_lane_lines=[]
+        emergency_lane_lines = []
         return
     merger = HoughBundler()
     lines = merger.process_lines(unmerged_lines)
     # print(lines)
     for line in lines:
-        line[0][0]+=x
-        line[0][1]+=y
-        line[1][0]+=x
-        line[1][1]+=y
-        cv2.line(imgDisplay, (line[0][0], line[0][1]), (line[1][0],line[1][1]), (0,0,255), 3)
+        line[0][0] += x
+        line[0][1] += y
+        line[1][0] += x
+        line[1][1] += y
+        cv2.line(
+            imgDisplay,
+            (line[0][0], line[0][1]),
+            (line[1][0], line[1][1]),
+            (0, 0, 255),
+            3,
+        )
     # define arrays for left and right lanes
     emergency_lane_lines = lines
 
@@ -267,20 +299,21 @@ def detect_lanes(imgDisplay):
 
 cartracker = cartrack.Tracker()
 
+
 def drawTrackedVehicle(imgDisplay):
-    car=0
-    truck=0
-    motor=0
-    bus=0
+    car = 0
+    truck = 0
+    motor = 0
+    bus = 0
     for fid in cartracker.faceTrackers.keys():
         tracked_position = cartracker.faceTrackers[fid].get_position()
         t_x = int(tracked_position.left())
         t_y = int(tracked_position.top())
         t_w = int(tracked_position.width())
         t_h = int(tracked_position.height())
-        t_x_bar = t_x +0.5*t_w
-        t_y_bar = t_y+0.5*t_h
-        min_dist = [float('inf'),]
+        t_x_bar = t_x + 0.5 * t_w
+        t_y_bar = t_y + 0.5 * t_h
+        min_dist = [float("inf")]
         for line in emergency_lane_lines:
             p3 = np.array([t_x_bar, t_y_bar])
             p1 = np.array([line[0][0], line[0][1]])
@@ -290,24 +323,24 @@ def drawTrackedVehicle(imgDisplay):
         StoppedTime = cartracker.getStoppedTime(fid)
         direction = cartracker.direction[fid]
         type = cartracker.type[fid]
-        if type == 'Car':
-            car+=1
+        if type == "Car":
+            car += 1
             rectColor = (0, 255, 0)
-        elif type =='Truck':
-            truck+=1
+        elif type == "Truck":
+            truck += 1
             rectColor = (0, 255, 255)
-        elif type == 'Motorcycle':
-            motor+=1
+        elif type == "Motorcycle":
+            motor += 1
             rectColor = (255, 255, 0)
         else:
-            bus+=1
+            bus += 1
             rectColor = (255, 0, 0)
         # if StoppedTime>5:
         #     rectColor = (0,0,255)
         #     text = '{}{} Stopped'.format(type,fid) + str(int(StoppedTime)) + 's'
         #
         # else:
-        text = '{}{} '.format(type,fid) + str(direction)
+        text = "{}{} ".format(type, fid) + str(direction)
         # if min(min_dist)<60:
         #     rectColor=(0,0,255)
         #     text = '{}{} '.format(type,fid) +'Emergency Lane Driving'
@@ -316,14 +349,13 @@ def drawTrackedVehicle(imgDisplay):
         textY = int(t_y)
         textLoc = (textX, textY)
 
-        cv2.rectangle(imgDisplay, (t_x, t_y),
-                      (t_x + t_w , t_y + t_h),
-                      rectColor ,1)
+        cv2.rectangle(imgDisplay, (t_x, t_y), (t_x + t_w, t_y + t_h), rectColor, 1)
 
-        cv2.putText(imgDisplay, text, textLoc,
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5, (255, 255, 255), 1)
-    return car,motor,bus,truck
+        cv2.putText(
+            imgDisplay, text, textLoc, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1
+        )
+    return car, motor, bus, truck
+
 
 frame_interval = 5
 id = 0
@@ -333,20 +365,22 @@ emergency_lane_lines = []
 
 if __name__ == "__main__":
     # model_path = 'model/ssd_inception_v2_coco_2018_01_28/frozen_inference_graph.pb'
-    model_path = 'model/faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb'
+    model_path = (
+        "model/faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb"
+    )
     # model_path = 'model/faster_rcnn_resnet50_coco_2018_01_28/frozen_inference_graph.pb'
     # model_path = 'model/frozen_inference_graph.pb'
     odapi = DetectorAPI(path_to_ckpt=model_path)
     vehiclethres = 0.8
     # cap = cv2.VideoCapture('videos/Mainline-Detect Vehicle type/A0014.mov')
-    cap = cv2.VideoCapture('videos/PLUS Ronda/A0031.mkv')
+    cap = cv2.VideoCapture("videos/PLUS Ronda/A0031.mkv")
     flag, frame = cap.read()
     assert flag == True
     height, width, _ = frame.shape
     cartracker.videoFrameSize = frame.shape
     fps = cap.get(cv2.CAP_PROP_FPS)
     cartracker.fps = fps
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*"XVID")
     frame_count = 0
     # Define VideoWrite object
     # cv2.VideoWrite('arg1',arg2,arg3,(width,heigh))
@@ -354,7 +388,7 @@ if __name__ == "__main__":
     # arg2:Specify Fourcc code
     # arg3: frames per seconds
     # FourCC is a 4-byte code used to specify video codec
-    out = cv2.VideoWriter('output_videos/ronda.avi', fourcc, fps, (width, height))
+    out = cv2.VideoWriter("output_videos/ronda.avi", fourcc, fps, (width, height))
     # cap.set(cv2.CAP_PROP_POS_FRAMES, 18000)
 
     while True:
@@ -366,65 +400,120 @@ if __name__ == "__main__":
             #     id -= int(len(tracker.faceTrackers))
             #     tracker.deleteAll()
             #     print('refreshing')
-            if frame_count % (frame_interval*3) ==0:
+            if frame_count % (frame_interval * 3) == 0:
                 cartracker.removeDuplicate()
                 # seattracker.removeDuplicate()
 
             cartracker.deleteTrack(img)
-            if frame_count % frame_interval ==0:
+            if frame_count % frame_interval == 0:
                 boxes, scores, classes, num = odapi.processFrame(img)
                 # Visualization of the results of a detection.
                 for i in range(len(boxes)):
                     # Class 1 represents human
-                        # cv2.rectangle(img,(box[1],box[0]),(box[3],box[2]),(255,0,0),2)
-                    if classes[i] == 3 and scores[i]>vehiclethres:
+                    # cv2.rectangle(img,(box[1],box[0]),(box[3],box[2]),(255,0,0),2)
+                    if classes[i] == 3 and scores[i] > vehiclethres:
                         box = boxes[i]
-                        matchedID = cartracker.getMatchId(img, (box[1], box[0], box[3], box[2]))
+                        matchedID = cartracker.getMatchId(
+                            img, (box[1], box[0], box[3], box[2])
+                        )
                         if matchedID is None:
                             carid += 1
-                            cartracker.createTrack(img, (box[1], box[0], box[3], box[2]), str(carid), scores[i],'Car')
-                    elif classes[i] == 4 and scores[i]>vehiclethres-0.3:
+                            cartracker.createTrack(
+                                img,
+                                (box[1], box[0], box[3], box[2]),
+                                str(carid),
+                                scores[i],
+                                "Car",
+                            )
+                    elif classes[i] == 4 and scores[i] > vehiclethres - 0.3:
                         box = boxes[i]
-                        matchedID = cartracker.getMatchId(img, (box[1], box[0], box[3], box[2]))
+                        matchedID = cartracker.getMatchId(
+                            img, (box[1], box[0], box[3], box[2])
+                        )
                         if matchedID is None:
                             carid += 1
-                            cartracker.createTrack(img, (box[1], box[0], box[3], box[2]), str(carid), scores[i],'Motorcycle')
-                    elif classes[i] == 6 and scores[i]>vehiclethres:
+                            cartracker.createTrack(
+                                img,
+                                (box[1], box[0], box[3], box[2]),
+                                str(carid),
+                                scores[i],
+                                "Motorcycle",
+                            )
+                    elif classes[i] == 6 and scores[i] > vehiclethres:
                         box = boxes[i]
-                        matchedID = cartracker.getMatchId(img, (box[1], box[0], box[3], box[2]))
+                        matchedID = cartracker.getMatchId(
+                            img, (box[1], box[0], box[3], box[2])
+                        )
                         if matchedID is None:
                             carid += 1
-                            cartracker.createTrack(img, (box[1], box[0], box[3], box[2]), str(carid), scores[i],'Bus')
-                    elif classes[i] == 8 and scores[i]>vehiclethres:
+                            cartracker.createTrack(
+                                img,
+                                (box[1], box[0], box[3], box[2]),
+                                str(carid),
+                                scores[i],
+                                "Bus",
+                            )
+                    elif classes[i] == 8 and scores[i] > vehiclethres:
                         box = boxes[i]
-                        matchedID = cartracker.getMatchId(img, (box[1], box[0], box[3], box[2]))
+                        matchedID = cartracker.getMatchId(
+                            img, (box[1], box[0], box[3], box[2])
+                        )
                         if matchedID is None:
                             carid += 1
-                            cartracker.createTrack(img, (box[1], box[0], box[3], box[2]), str(carid), scores[i],'Truck')
+                            cartracker.createTrack(
+                                img,
+                                (box[1], box[0], box[3], box[2]),
+                                str(carid),
+                                scores[i],
+                                "Truck",
+                            )
 
             detect_lanes(img)
 
-            car,motor,bus,truck=drawTrackedVehicle(img)
+            car, motor, bus, truck = drawTrackedVehicle(img)
 
-            cv2.putText(img, 'Cars: ' + str(car), (0, 13),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, (0, 255, 0), 2)
-            cv2.putText(img, 'Motor: ' + str(motor), (0, 26),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, (255, 255, 0), 2)
-            cv2.putText(img, 'Bus: ' + str(bus), (0, 39),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, (255, 0, 0), 2)
-            cv2.putText(img, 'Truck: ' + str(truck), (0, 52),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, (0, 255, 255), 2)
+            cv2.putText(
+                img,
+                "Cars: " + str(car),
+                (0, 13),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 255, 0),
+                2,
+            )
+            cv2.putText(
+                img,
+                "Motor: " + str(motor),
+                (0, 26),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 255, 0),
+                2,
+            )
+            cv2.putText(
+                img,
+                "Bus: " + str(bus),
+                (0, 39),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 0, 0),
+                2,
+            )
+            cv2.putText(
+                img,
+                "Truck: " + str(truck),
+                (0, 52),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 255, 255),
+                2,
+            )
 
             out.write(img)
-            frame_count+=1
+            frame_count += 1
             cv2.imshow("preview", img)
             key = cv2.waitKey(1)
-            if key & 0xFF == ord('q'):
+            if key & 0xFF == ord("q"):
                 break
         else:
-            print('video error')
-
+            print("video error")
