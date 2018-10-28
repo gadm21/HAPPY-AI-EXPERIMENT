@@ -1,16 +1,34 @@
 # tapway-ai-experiment
 Related to new features we are exploring for customers
 
-# Caveat
+### Server config
+Base image - `Ubuntu Server 18.04 LTS (HVM), SSD Volume Type - ami-0c5199d385b432989`
+##### list of installed packages:
+`build-essential` `apt-transport-https` `ca-certificates` `curl` `software-properties-common` `docker-ce` `hstr` `byobu` `cmake` `awscli` `libsm6` `libxext6` `libxrender1` `xvfb` `libopencv-dev`
+
+### Python dependences 
 Due to libs build problems in different environments. `pip` replaced to [pipenv](https://pipenv.readthedocs.io/en/latest/)
-1. [install](https://pipenv.readthedocs.io/en/latest/install/#installing-pipenv) `pipenv`
-2. create venv(only once):
+
+##### If you need to create this environment locally do it this way:
 ```bash
-cd <project dir>
+pip install --user pipenv
+git clone https://github.com/tapway/tapway-ai-experiment.git
+cd tapway-ai-experiment
 pipenv install
+# check
+ pipenv run python -V
+# you must see something like 
+# Courtesy Notice: Pipenv found itself running within a virtual environment, so it will automatically use that environment, instead of creating its own for any project. You can set PIPENV_IGNORE_VIRTUALENVS=1 to force pipenv to ignore that environment and create its own instead. You can set PIPENV_VERBOSITY=-1 to suppress this warning.
+# Python 3.6.7
 ```
-3. activate (every time then you need it): `pipenv shell`
-4. If you need to install new package do it this way:
+##### If you need to run script on our headless server, sequence is:
+```bash
+cd <path to repo>
+pipenv shell
+export DISPLAY=:1
+python <what you want to run>
+``` 
+##### If you need to install new package do it this way:
 ```
 cd <project dir>
 pipenv shell
