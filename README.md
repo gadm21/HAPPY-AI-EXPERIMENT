@@ -21,6 +21,16 @@ pipenv install
 # Courtesy Notice: Pipenv found itself running within a virtual environment, so it will automatically use that environment, instead of creating its own for any project. You can set PIPENV_IGNORE_VIRTUALENVS=1 to force pipenv to ignore that environment and create its own instead. You can set PIPENV_VERBOSITY=-1 to suppress this warning.
 # Python 3.6.7
 ```
+##### If you need to run your code in venv
+```bash
+cd <path to repo>
+pipenv run <what you want to run>
+```
+##### If you need to activate venv
+```bash
+cd <path to repo>
+pipenv shell
+```
 ##### If you need to run script on our headless server, sequence is:
 ```bash
 cd <path to repo>
@@ -29,9 +39,8 @@ export DISPLAY=:1
 python <what you want to run>
 ``` 
 ##### If you need to install new package do it this way:
-```
+```bash
 cd <project dir>
-pipenv shell
 pipenv install <package name>
 # after that you need to commit Pipfile and Pipfile.lock to repo
 ```
