@@ -239,6 +239,9 @@ def main(args):
         if opt.debug:
             print(num)
         flags, frame = video_capture.read()
+        
+        if flags == False:
+            break        
         frame = cv2.resize(frame, (width, height))
         imgt = Image.fromarray(frame.copy())
 
@@ -246,9 +249,6 @@ def main(args):
         imgt = converter.enhance(1)
 
         frame = np.asarray(imgt.copy())
-
-        if flags == False:
-            break
 
         im_height, im_width, _ = frame.shape
         tracker.videoFrameSize = frame.shape
