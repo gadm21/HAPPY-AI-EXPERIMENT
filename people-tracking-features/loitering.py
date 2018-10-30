@@ -126,6 +126,8 @@ seat = 0
 
 if __name__ == "__main__":
     model_path, input, output, frame_interval, threshold = check_arg(sys.argv[1:])
+    frame_interval = int(frame_interval)
+    threshold = float(threshold)
     odapi = DetectorAPI(path_to_ckpt=model_path)
     cap = cv2.VideoCapture(input)
     flag, frame = cap.read()

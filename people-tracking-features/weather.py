@@ -66,6 +66,7 @@ def check_arg(args=None):
 
 if __name__ == "__main__":
     input, output, rainthres = check_arg(sys.argv[1:])
+    rainthres = int(rainthres)
     cap = cv2.VideoCapture(input)
     flag, frame = cap.read()
     assert flag == True

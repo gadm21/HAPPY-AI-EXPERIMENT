@@ -195,6 +195,8 @@ carid = 0
 parking_spots = None
 if __name__ == "__main__":
     model_path, input, output, frame_interval, points, vehiclethres = check_arg(sys.argv[1:])
+    frame_interval = int(frame_interval)
+    vehiclethres = float(vehiclethres)
     parking_spots = eval(points)
     odapi = DetectorAPI(path_to_ckpt=model_path)
     cap = cv2.VideoCapture(input)

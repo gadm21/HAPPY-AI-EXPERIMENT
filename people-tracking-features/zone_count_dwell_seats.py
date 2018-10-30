@@ -92,7 +92,7 @@ def drawTrackedFace(imgDisplay):
 
         cv2.putText(imgDisplay, text, textLoc,
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5, (255, 255, 255), 1)
+                    0.5, (0, 0, 0), 1)
 
 
 def drawTrackedSeat(imgDisplay):
@@ -139,6 +139,9 @@ def check_arg(args=None):
     parser.add_argument('-f', '--frame_interval',
                         help='Amount of frame interval between frame processing',
                         default=5)
+    parser.add_argument('-p', '--roi_points',
+                        help='Points for ROI in format of (x1,y1,x2,y2)',
+                        required=True)
     parser.add_argument('-pt', '--people_threshold',
                         help='Threshold value for people detection',
                         default=0.9)
@@ -150,14 +153,23 @@ def check_arg(args=None):
             results.input,
             results.output,
             results.frame_interval,
+            results.roi_points,
             results.seat_threshold,
             results.people_threshold)
 
 
 id = 0
 seat = 0
+p1 = None
+p2 = None
 if __name__ == "__main__":
-    model_path, input, output, frame_interval, seatthreshold, threshold = check_arg(sys.argv[1:])
+    model_path, input, output, frame_interval, points, seatthreshold, threshold = check_arg(sys.argv[1:])
+    frame_interval = int(frame_interval)
+    seatthreshold = float(seatthreshold)
+    threshold = float(threshold)
+    points = eval(points)
+    p1 = (points[0], points[1])
+    p2 = (points[2], points[3])
     odapi = DetectorAPI(path_to_ckpt=model_path)
     cap = cv2.VideoCapture(input)
     flag, frame = cap.read()
@@ -189,27 +201,33 @@ if __name__ == "__main__":
             seattracker.checkOccupied(tracker)
 
             if frame_count % frame_interval == 0:
-                boxes, scores, classes, num = odapi.processFrame(img)
+                roi = img[p1[1]:p2[1], p1[0]:p2[0]]
+                boxes, scores, classes, num = odapi.processFrame(roi)
                 # Visualization of the results of a detection.
                 for i in range(len(boxes)):
+                    box = boxes[i]
+                    x1 = box[1] + p1[0]
+                    y1 = box[0] + p1[1]
+                    x2 = box[3] + p1[0]
+                    y2 = box[2] + p1[1]
                     # Class 1 represents human
                     if classes[i] == 1 and scores[i] >= threshold:
-                        box = boxes[i]
-                        matchedID = tracker.getMatchId(img, (box[1], box[0], box[3], box[2]))
+
+                        matchedID = tracker.getMatchId(img, (x1, y1, x2, y2))
                         if matchedID is None:
                             id += 1
-                            tracker.createTrack(img, (box[1], box[0], box[3], box[2]), str(id), scores[i])
+                            tracker.createTrack(img, (x1, y1, x2, y2), str(id), scores[i])
                         # cv2.rectangle(img,(box[1],box[0]),(box[3],box[2]),(255,0,0),2)
                     elif (classes[i] == 2) and scores[i] >= seatthreshold:
-                        box = boxes[i]
-                        matchedID = seattracker.getMatchId(img, (box[1], box[0], box[3], box[2]))
+                        matchedID = seattracker.getMatchId(img, (x1, y1, x2, y2))
                         if matchedID is None:
                             seat += 1
-                            seattracker.createTrack(img, (box[1], box[0], box[3], box[2]), str(seat), scores[i])
+                            seattracker.createTrack(img, (x1, y1, x2, y2), str(seat), scores[i])
 
             drawTrackedSeat(img)
             drawTrackedFace(img)
             number = int(len(tracker.faceTrackers))
+            cv2.rectangle(img, p1, p2, (0, 255, 0), 2)
             cv2.putText(img, 'People: ' + str(number), (0, 25),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1, (0, 255, 0), 2)

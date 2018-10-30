@@ -107,7 +107,8 @@ minP = None
 maxP = None
 if __name__ == "__main__":
     input, output, minP, maxP = check_arg(sys.argv[1:])
-
+    minP = int(minP)
+    maxP = int(maxP)
     cap = cv2.VideoCapture(input)
     flag, frame = cap.read()
     assert flag == True

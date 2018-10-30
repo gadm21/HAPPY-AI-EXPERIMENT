@@ -167,6 +167,9 @@ id = 0
 bag = 0
 if __name__ == "__main__":
     model_path, input, output, frame_interval, bagthreshold, threshold = check_arg(sys.argv[1:])
+    bagthreshold = float(bagthreshold)
+    threshold = float(threshold)
+    frame_interval = int(frame_interval)
     odapi = DetectorAPI(path_to_ckpt=model_path)
     cap = cv2.VideoCapture(input)
     flag, frame = cap.read()

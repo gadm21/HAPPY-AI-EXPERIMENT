@@ -185,6 +185,8 @@ pt2 = None
 
 if __name__ == "__main__":
     model_path, input, output, frame_interval, points, vehiclethres = check_arg(sys.argv[1:])
+    frame_interval = int(frame_interval)
+    vehiclethres = float(vehiclethres)
     points = eval(points)
     pt1 = (points[0], points[1])
     pt2 = (points[2], points[3])
