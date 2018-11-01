@@ -1,0 +1,39 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[dev-packages]
+ipython = "*"
+black = "*"
+pytest = "*"
+pytest-env = "*"
+pytest-flask = "*"
+pytest-pycharm = "*"
+v = {version = "*", editable = true}
+
+[packages]
+alembic = "*"
+connexion = {version = "*", extras = ["swagger-ui"]}
+flask-migrate = "*"
+flask-sqlalchemy = "*"
+gevent = "*"
+imutils = "*"
+scikit-image = "*"
+numpy = "*"
+"boto3" = "*"
+cmake = "*"
+dlib = "*"
+"h5py" = "*"
+pandas = "*"
+pillow = "*"
+scikit-learn = "*"
+scipy = "*"
+tensorflow = "*"
+opencv-python = "*"
+
+[requires]
+python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true
