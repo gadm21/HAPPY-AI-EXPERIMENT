@@ -1,6 +1,5 @@
 import dlib
 import numpy as np
-import cv2
 
 
 class Tracker:
@@ -35,7 +34,7 @@ class Tracker:
                 t_y_bar = t_y + 0.5 * t_h
 
                 intersect = True
-                if x + w < t_x or t_x + t_w < x or y + h < t_y or t_y + t_h < y:
+                if (x + w < t_x or t_x + t_w < x or y + h < t_y or t_y + t_h < y):
                     intersect = False
                 if abs(x_bar - t_x_bar) < 30 and y_bar > t_y_bar and intersect:
                     self.occupied[id] = True
@@ -68,7 +67,7 @@ class Tracker:
         x = int(x1)
         y = int(y1)
 
-        print("Creating new seat tracker" + str(currentFaceID))
+        print('Creating new seat tracker' + str(currentFaceID))
         tracker = dlib.correlation_tracker()
         # tracker.start_track(imgDisplay,dlib.rectangle(x-10,y-10,x+w+10,y+h+10))
         tracker.start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
@@ -164,18 +163,14 @@ class Tracker:
             t_x_bar = t_x + 0.5 * t_w
             t_y_bar = t_y + 0.5 * t_h
 
-            if (
-                (t_x <= x_bar <= (t_x + t_w))
-                and (t_y <= y_bar <= (t_y + t_h))
-                and (x <= t_x_bar <= (x + w))
-                and (y <= t_y_bar <= (y + h))
-            ):
+            if ((t_x <= x_bar <= (t_x + t_w)) and
+                    (t_y <= y_bar <= (t_y + t_h)) and
+                    (x <= t_x_bar <= (x + w)) and
+                    (y <= t_y_bar <= (y + h))):
                 matchedFid = fid
 
                 # self.faceTrackers[fid].start_track(imgDisplay,dlib.rectangle(x-10,y-20,x+w+10,y+h+20))
-                self.faceTrackers[fid].start_track(
-                    imgDisplay, dlib.rectangle(x, y, x + w, y + h)
-                )
+                self.faceTrackers[fid].start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
             # self.faceTrackers[fid].start_track(imgDisplay,dlib.rectangle(x-50,y-50,x+w+50,y+h+50))
 
         return matchedFid
@@ -203,8 +198,9 @@ class Tracker:
                 t_x_bar = t_x + 0.5 * t_w
                 t_y_bar = t_y + 0.5 * t_h
 
-                if (
-                    (t_x <= x_bar <= (t_x + t_w)) and (t_y <= y_bar <= (t_y + t_h))
-                ) and ((x <= t_x_bar <= (x + w)) and (y <= t_y_bar <= (y + h))):
+                if (((t_x <= x_bar <= (t_x + t_w)) and
+                     (t_y <= y_bar <= (t_y + t_h))) and
+                        ((x <= t_x_bar <= (x + w)) and
+                         (y <= t_y_bar <= (y + h)))):
                     self.faceTrackers.pop(id, None)
-                    print("delete overlap {}, {}".format(id, fid))
+                    print('delete overlap {}, {}'.format(id, fid))

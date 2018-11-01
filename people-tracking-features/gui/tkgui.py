@@ -1,19 +1,18 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from PIL import ImageTk, Image
 
-import cv2
+from PIL import ImageTk, Image
 
 
 class VerticalScrolledFrame(tk.Frame):
+
     def __init__(self, parent, *args, **kw):
         tk.Frame.__init__(self, parent, *args, **kw)
         # create a canvas object and a vertical scrollbar for scrolling it
         self.vscrollbar = tk.ttk.Scrollbar(self, orient=tk.VERTICAL)
         self.vscrollbar.pack(fill=tk.Y, side=tk.RIGHT, expand=tk.FALSE)
-        self.canvas = tk.Canvas(
-            self, bd=0, highlightthickness=0, yscrollcommand=self.vscrollbar.set
-        )
+        self.canvas = tk.Canvas(self, bd=0, highlightthickness=0,
+                                yscrollcommand=self.vscrollbar.set)
 
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.TRUE)
 
@@ -26,9 +25,8 @@ class VerticalScrolledFrame(tk.Frame):
         # create a frame inside the canvas which will be scrolled with it
         self.interior = interior = tk.ttk.Frame(self.canvas)
 
-        self.interior_id = self.canvas.create_window(
-            0, 0, window=interior, anchor=tk.NW
-        )
+        self.interior_id = self.canvas.create_window(0, 0, window=interior,
+                                                     anchor=tk.NW)
 
         # track changes to the canvas and frame width and sync them,
         # also updating the scrollbar
@@ -41,45 +39,43 @@ class VerticalScrolledFrame(tk.Frame):
                 # update the canvas's width to fit the inner frame
                 self.canvas.config(width=interior.winfo_reqwidth())
 
-        interior.bind("<Configure>", _configure_interior)
+        interior.bind('<Configure>', _configure_interior)
 
         def _configure_canvas(event):
             if interior.winfo_reqwidth() != self.canvas.winfo_width():
                 # update the inner frame's width to fill the canvas
-                self.canvas.itemconfigure(
-                    self.interior_id, width=self.canvas.winfo_width()
-                )
+                self.canvas.itemconfigure(self.interior_id, width=self.canvas.winfo_width())
 
-        self.canvas.bind("<Configure>", _configure_canvas)
+        self.canvas.bind('<Configure>', _configure_canvas)
 
         def _configure_canvas_height(event):
             if self.winfo_toplevel().winfo_height() != self.canvas.winfo_height():
                 self.canvas.config(height=self.winfo_toplevel().winfo_height())
 
-        self.canvas.bind("<Configure>", _configure_canvas_height)
+        self.canvas.bind('<Configure>', _configure_canvas_height)
 
         def _on_mousewheel(event):
             # print("detected",event.delta,event.num)
             if event.num == 4 or event.delta == 120:
-                self.canvas.yview("scroll", -1, "units")
+                self.canvas.yview('scroll', -1, 'units')
             elif event.num == 5 or event.delta == -120:
-                self.canvas.yview("scroll", 1, "units")
+                self.canvas.yview('scroll', 1, 'units')
 
         # canvas.bind_all('<4>',_on_mousewheel,add='+')
         # canvas.bind_all('<5>',_on_mousewheel,add='+')
         # Window OS
-        self.canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        self.canvas.bind_all('<MouseWheel>', _on_mousewheel)
         # Linux OS
-        self.canvas.bind_all("<4>", _on_mousewheel)
-        self.canvas.bind_all("<5>", _on_mousewheel)
+        self.canvas.bind_all('<4>', _on_mousewheel)
+        self.canvas.bind_all('<5>', _on_mousewheel)
 
 
 class ROIDrawer(tk.Frame):
     def __init__(self, parent, im, wwidth, wheight, *args, **kw):
         tk.Frame.__init__(self, parent, *args, **kw)
         self.width, self.height = im.size
-        wpercent = wwidth / float(im.size[0])
-        hpercent = wheight / float(im.size[1])
+        wpercent = (wwidth / float(im.size[0]))
+        hpercent = (wheight / float(im.size[1]))
         ### scale while maintaining aspect ratio
         if wpercent < hpercent:
             hsize = int((float(im.size[1]) * float(wpercent)))
@@ -91,7 +87,7 @@ class ROIDrawer(tk.Frame):
         width, height = self.im.size
         self.x = self.y = 0
         self.canvas = tk.Canvas(self, width=width, height=height, cursor="cross")
-        self.canvas.pack(side="top", fill="both", expand=True)
+        self.canvas.pack(side='top', fill='both', expand=True)
         # self.sbarv=tk.Scrollbar(self,orient=tk.VERTICAL)
         # self.sbarh=tk.Scrollbar(self,orient=tk.HORIZONTAL)
         # self.sbarv.config(command=self.canvas.yview)
@@ -127,9 +123,7 @@ class ROIDrawer(tk.Frame):
         self.start_y = event.y
         # create rectangle if not yet exist
         if not self.rect:
-            self.rect = self.canvas.create_rectangle(
-                self.x, self.y, 1, 1, outline="red"
-            )
+            self.rect = self.canvas.create_rectangle(self.x, self.y, 1, 1, outline='red')
 
     def on_move_press(self, event):
         self.curX = event.x

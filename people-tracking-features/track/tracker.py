@@ -33,7 +33,7 @@ class Tracker:
         x = int(x1)
         y = int(y1)
 
-        print("Creating new tracker" + str(currentFaceID))
+        print('Creating new tracker' + str(currentFaceID))
         tracker = dlib.correlation_tracker()
         # tracker.start_track(imgDisplay,dlib.rectangle(x-10,y-10,x+w+10,y+h+10))
         tracker.start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
@@ -111,45 +111,33 @@ class Tracker:
             t_x_bar = t_x + 0.5 * t_w
             t_y_bar = t_y + 0.5 * t_h
             if self.getLoiteringTime(fid) > 5:
-                if (
-                    t_y_bar
-                    - sum(self.directionMemory[fid]) / len(self.directionMemory[fid])
-                ) > 10:
+                if (t_y_bar - sum(self.directionMemory[fid]) / len(self.directionMemory[fid])) > 10:
                     # if self.direction[fid] == 'up':
                     # 	self.direction[fid] = None
                     # else:
-                    self.direction[fid] = "down"
+                    self.direction[fid] = 'down'
                     self.isLoitering[fid] = 1
-                elif (
-                    t_y_bar
-                    - sum(self.directionMemory[fid]) / len(self.directionMemory[fid])
-                ) < -10:
+                elif (t_y_bar - sum(self.directionMemory[fid]) / len(self.directionMemory[fid])) < -10:
                     # if self.direction[fid] == 'down':
                     # 	self.direction[fid]=None
                     # else:
-                    self.direction[fid] = "up"
+                    self.direction[fid] = 'up'
                     self.isLoitering[fid] = 1
                 else:
                     self.direction[fid] = None
                     self.isLoitering[fid] += 1
             else:
-                if (
-                    t_y_bar
-                    - sum(self.directionMemory[fid]) / len(self.directionMemory[fid])
-                ) > 5:
+                if (t_y_bar - sum(self.directionMemory[fid]) / len(self.directionMemory[fid])) > 5:
                     # if self.direction[fid] == 'up':
                     # 	self.direction[fid] = None
                     # else:
-                    self.direction[fid] = "down"
+                    self.direction[fid] = 'down'
                     self.isLoitering[fid] = 1
-                elif (
-                    t_y_bar
-                    - sum(self.directionMemory[fid]) / len(self.directionMemory[fid])
-                ) < -5:
+                elif (t_y_bar - sum(self.directionMemory[fid]) / len(self.directionMemory[fid])) < -5:
                     # if self.direction[fid] == 'down':
                     # 	self.direction[fid]=None
                     # else:
-                    self.direction[fid] = "up"
+                    self.direction[fid] = 'up'
                     self.isLoitering[fid] = 1
                 else:
                     self.direction[fid] = None
@@ -199,19 +187,15 @@ class Tracker:
             t_x_bar = t_x + 0.5 * t_w
             t_y_bar = t_y + 0.5 * t_h
 
-            if (
-                (t_x <= x_bar <= (t_x + t_w))
-                and (t_y <= y_bar <= (t_y + t_h))
-                and (x <= t_x_bar <= (x + w))
-                and (y <= t_y_bar <= (y + h))
-            ):
+            if ((t_x <= x_bar <= (t_x + t_w)) and
+                    (t_y <= y_bar <= (t_y + t_h)) and
+                    (x <= t_x_bar <= (x + w)) and
+                    (y <= t_y_bar <= (y + h))):
                 matchedFid = fid
 
                 # self.faceTrackers[fid].start_track(imgDisplay,dlib.rectangle(x-10,y-20,x+w+10,y+h+20))
-                self.faceTrackers[fid].start_track(
-                    imgDisplay, dlib.rectangle(x, y, x + w, y + h)
-                )
-                # self.faceTrackers[fid].start_track(imgDisplay,dlib.rectangle(x-50,y-50,x+w+50,y+h+50))
+                self.faceTrackers[fid].start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
+            # self.faceTrackers[fid].start_track(imgDisplay,dlib.rectangle(x-50,y-50,x+w+50,y+h+50))
 
         return matchedFid
 
@@ -240,11 +224,12 @@ class Tracker:
                 t_x_bar = t_x + 0.5 * t_w
                 t_y_bar = t_y + 0.5 * t_h
 
-                if (
-                    (t_x <= x_bar <= (t_x + t_w)) and (t_y <= y_bar <= (t_y + t_h))
-                ) and ((x <= t_x_bar <= (x + w)) and (y <= t_y_bar <= (y + h))):
+                if (((t_x <= x_bar <= (t_x + t_w)) and
+                     (t_y <= y_bar <= (t_y + t_h))) and
+                        ((x <= t_x_bar <= (x + w)) and
+                         (y <= t_y_bar <= (y + h)))):
                     self.fidsToDelete.append(fid)
-                    print("delete overlap {}, {}".format(id, fid))
+                    print('delete overlap {}, {}'.format(id, fid))
                     break
 
         while len(self.fidsToDelete) > 0:

@@ -9,7 +9,6 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
-import track.bagtracker as bagtrack
 import track.tracker as track
 
 
@@ -66,45 +65,6 @@ class DetectorAPI:
 
 
 tracker = track.Tracker()
-tracker.trackingQuality = 9
-bagtracker = bagtrack.Tracker()
-
-
-def drawTrackedBag(imgDisplay):
-    for fid in bagtracker.faceTrackers.keys():
-        tracked_position = bagtracker.faceTrackers[fid].get_position()
-        t_x = int(tracked_position.left())
-        t_y = int(tracked_position.top())
-        t_w = int(tracked_position.width())
-        t_h = int(tracked_position.height())
-
-        owner = bagtracker.owner[fid]
-        abandoned = bagtracker.abandoned[fid]
-        if owner is not None:
-            owner = 'Owner: P' + str(owner)
-        else:
-            owner = 'No Owner'
-        if abandoned:
-            rectColor = (0, 0, 255)
-            owner = owner + '(Abandoned)'
-            print('detected abandoned package {} owner: {}'.format(fid, bagtracker.owner[fid]))
-        else:
-            rectColor = (255, 0, 0)
-
-        text = '{}'.format(owner)
-
-        textSize = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
-        textX = int(t_x + t_w / 2 - (textSize[0]) / 2)
-        textY = int(t_y)
-        textLoc = (textX, textY)
-
-        cv2.rectangle(imgDisplay, (t_x, t_y),
-                      (t_x + t_w, t_y + t_h),
-                      rectColor, 1)
-
-        cv2.putText(imgDisplay, text, textLoc,
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5, (255, 255, 255), 2)
 
 
 def drawTrackedFace(imgDisplay):
@@ -114,9 +74,35 @@ def drawTrackedFace(imgDisplay):
         t_y = int(tracked_position.top())
         t_w = int(tracked_position.width())
         t_h = int(tracked_position.height())
+        direction = tracker.direction[fid]
+        text = 'P{} '.format(fid) + str(direction)
 
-        text = 'P{}'.format(fid)
-        rectColor = (0, 255, 0)
+        t_x_bar = t_x + 0.5 * t_w
+        t_y_bar = t_y + 0.5 * t_h
+
+        p1 = np.array([pt1[0], pt1[1]])
+        p2 = np.array([pt2[0], pt2[1]])
+        p3 = np.array([t_x_bar, t_y_bar])
+
+        d = np.linalg.norm(np.cross(p2 - p1, p1 - p3)) / np.linalg.norm(p2 - p1)
+
+        if abs(d) < 50 and not counted[fid]:
+            if direction == 'up':
+                global up
+                up += 1
+                counted[fid] = True
+
+            elif direction == 'down':
+                global down
+                down += 1
+                counted[fid] = True
+
+        if direction == 'up':
+            rectColor = (0, 0, 255)
+        elif direction == 'down':
+            rectColor = (255, 0, 0)
+        else:
+            rectColor = (0, 255, 0)
 
         textSize = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
         textX = int(t_x + t_w / 2 - (textSize[0]) / 2)
@@ -129,11 +115,11 @@ def drawTrackedFace(imgDisplay):
 
         cv2.putText(imgDisplay, text, textLoc,
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5, (255, 255, 255), 2)
+                    0.5, (255, 255, 255), 1)
 
 
 def check_arg(args=None):
-    parser = argparse.ArgumentParser(description='Script for unattended package detection')
+    parser = argparse.ArgumentParser(description='Script for counting people passing a line')
     parser.add_argument('-m', '--model',
                         help='Tensorflow object detection model path',
                         required=True,
@@ -147,36 +133,42 @@ def check_arg(args=None):
     parser.add_argument('-f', '--frame_interval',
                         help='Amount of frame interval between frame processing',
                         default=5)
-    parser.add_argument('-bt', '--bag_threshold',
-                        help='Threshold value for bag detection',
-                        default=0.5)
-    parser.add_argument('-pt', '--person_threshold',
-                        help='Threshold value for person detection',
-                        default=0.5)
-
+    parser.add_argument('-p', '--points',
+                        help='Points of the line for counting in the format of (x1,y1,x2,y2)',
+                        required=True,
+                        default='(100,200,600,200)')
+    parser.add_argument('-pt', '--people_threshold',
+                        help='Threshold value for people detection',
+                        default=0.999)
     results = parser.parse_args(args)
     return (results.model,
             results.input,
             results.output,
             results.frame_interval,
-            results.bag_threshold,
-            results.person_threshold)
+            results.points,
+            results.people_threshold)
 
 
 id = 0
-bag = 0
+seat = 0
+
+pt1 = None
+pt2 = None
+up = 0
+down = 0
+counted = {}
 if __name__ == "__main__":
-    model_path, input, output, frame_interval, bagthreshold, threshold = check_arg(sys.argv[1:])
-    bagthreshold = float(bagthreshold)
-    threshold = float(threshold)
+    model_path, input, output, frame_interval, points, threshold = check_arg(sys.argv[1:])
     frame_interval = int(frame_interval)
+    threshold = float(threshold)
+    points = eval(points)
+    pt1 = (points[0], points[1])
+    pt2 = (points[2], points[3])
     odapi = DetectorAPI(path_to_ckpt=model_path)
     cap = cv2.VideoCapture(input)
     flag, frame = cap.read()
     assert flag == True
     tracker.videoFrameSize = frame.shape
-    bagtracker.videoFrameSize = frame.shape
-    height, width, _ = frame.shape
     fps = cap.get(cv2.CAP_PROP_FPS)
     tracker.fps = fps
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -187,6 +179,7 @@ if __name__ == "__main__":
     # arg2:Specify Fourcc code
     # arg3: frames per seconds
     # FourCC is a 4-byte code used to specify video codec
+    height, width, _ = frame.shape
     out = cv2.VideoWriter(output, fourcc, fps, (width, height))
 
     while True:
@@ -197,8 +190,7 @@ if __name__ == "__main__":
                 # seattracker.removeDuplicate()
 
             tracker.deleteTrack(img)
-            bagtracker.deleteTrack(img)
-            bagtracker.checkOwner(tracker)
+
             if frame_count % frame_interval == 0:
                 boxes, scores, classes, num = odapi.processFrame(img)
                 # Visualization of the results of a detection.
@@ -210,16 +202,18 @@ if __name__ == "__main__":
                         if matchedID is None:
                             id += 1
                             tracker.createTrack(img, (box[1], box[0], box[3], box[2]), str(id), scores[i])
+                            counted[str(id)] = False
                         # cv2.rectangle(img,(box[1],box[0]),(box[3],box[2]),(255,0,0),2)
-                    elif (classes[i] == 27 or classes[i] == 31 or classes[i] == 33) and scores[i] > bagthreshold:
-                        box = boxes[i]
-                        matchedID = bagtracker.getMatchId(img, (box[1], box[0], box[3], box[2]))
-                        if matchedID is None:
-                            bag += 1
-                            bagtracker.createTrack(img, (box[1], box[0], box[3], box[2]), str(bag), scores[i])
 
             drawTrackedFace(img)
-            drawTrackedBag(img)
+            cv2.line(img, pt1, pt2, (0, 255, 255), 2)
+            number = int(len(tracker.faceTrackers))
+            cv2.putText(img, 'Up: ' + str(up), (0, 25),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1, (0, 0, 255), 2)
+            cv2.putText(img, 'Down: ' + str(down), (0, 50),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1, (255, 0, 0), 2)
 
             out.write(img)
             frame_count += 1
