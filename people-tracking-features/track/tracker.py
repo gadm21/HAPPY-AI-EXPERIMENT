@@ -33,7 +33,7 @@ class Tracker:
         x = int(x1)
         y = int(y1)
 
-        print('Creating new tracker' + str(currentFaceID))
+        print('Creating new person tracker' + str(currentFaceID))
         tracker = dlib.correlation_tracker()
         # tracker.start_track(imgDisplay,dlib.rectangle(x-10,y-10,x+w+10,y+h+10))
         tracker.start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
@@ -150,7 +150,7 @@ class Tracker:
             relativeOutScreen = self.getRelativeOutScreen(fid)
 
             if relativeOutScreen > self.outOfScreenThreshold:
-                print("Face Out of Screen")
+                print("person tracker {} Out of Screen".format(fid))
                 self.fidsToDelete.append(fid)
 
         while len(self.fidsToDelete) > 0:
@@ -229,7 +229,7 @@ class Tracker:
                         ((x <= t_x_bar <= (x + w)) and
                          (y <= t_y_bar <= (y + h)))):
                     self.fidsToDelete.append(fid)
-                    print('delete overlap {}, {}'.format(id, fid))
+                    print('delete overlap person tracker {}, {}'.format(id, fid))
                     break
 
         while len(self.fidsToDelete) > 0:
