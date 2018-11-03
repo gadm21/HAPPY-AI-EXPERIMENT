@@ -22,7 +22,7 @@ class Tracker:
         x = int(x1)
         y = int(y1)
 
-        print('Creating new seat tracker' + str(currentFaceID))
+        print('Creating new light tracker' + str(currentFaceID))
         tracker = dlib.correlation_tracker()
         tracker.start_track(imgDisplay, dlib.rectangle(x - 20, y - 20, x + w + 20, y + h + 20))
         # tracker.start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
@@ -102,7 +102,7 @@ class Tracker:
             relativeOutScreen = self.getRelativeOutScreen(fid)
 
             if relativeOutScreen > self.outOfScreenThreshold:
-                print("Face Out of Screen")
+                print("light tracker {} Out of Screen".format(fid))
                 self.fidsToDelete.append(fid)
 
         while len(self.fidsToDelete) > 0:
@@ -175,4 +175,4 @@ class Tracker:
                         ((x <= t_x_bar <= (x + w)) and
                          (y <= t_y_bar <= (y + h)))):
                     self.faceTrackers.pop(id, None)
-                    print('delete overlap {}, {}'.format(id, fid))
+                    print('delete overlap light tracker {}, {}'.format(id, fid))

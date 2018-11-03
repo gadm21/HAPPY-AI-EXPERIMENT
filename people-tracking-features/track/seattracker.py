@@ -129,7 +129,7 @@ class Tracker:
             relativeOutScreen = self.getRelativeOutScreen(fid)
 
             if relativeOutScreen > self.outOfScreenThreshold:
-                print("Face Out of Screen")
+                print("seat tracker {} Out of Screen".format(fid))
                 self.fidsToDelete.append(fid)
 
         while len(self.fidsToDelete) > 0:
@@ -203,4 +203,4 @@ class Tracker:
                         ((x <= t_x_bar <= (x + w)) and
                          (y <= t_y_bar <= (y + h)))):
                     self.faceTrackers.pop(id, None)
-                    print('delete overlap {}, {}'.format(id, fid))
+                    print('delete overlap seat tracker {}, {}'.format(id, fid))
