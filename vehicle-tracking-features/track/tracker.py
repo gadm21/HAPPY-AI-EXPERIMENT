@@ -12,9 +12,8 @@ class Tracker:
         self.trackingQuality = 8
         self.videoFrameSize = np.empty((0, 0, 0))
         self.outOfScreenThreshold = 0.4
-
         self.vehicleList = {}
-        self.fps = 25
+        self.fps = None
         self.speedLimit = 50
 
     def createTrack(self, imgDisplay, boundingBox, currentobjectID):
@@ -26,11 +25,9 @@ class Tracker:
         x = int(x1)
         y = int(y1)
 
-        print("Creating new tracker" + str(currentobjectID))
+        # print("Creating new tracker" + str(currentobjectID))
         tracker = dlib.correlation_tracker()
-        # tracker.start_track(imgDisplay,dlib.rectangle(x-10,y-20,x+w+10,y+h+20))
         tracker.start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
-        # tracker.start_track(imgDisplay,dlib.rectangle(x-50,y-50,x+w+50,y+h+50))
 
         self.objectTrackers[currentobjectID] = tracker
 
@@ -97,7 +94,7 @@ class Tracker:
             relativeOutScreen = self.getRelativeOutScreen(fid)
 
             if relativeOutScreen > self.outOfScreenThreshold:
-                print("object Out of Screen")
+                # print("object Out of Screen")
                 self.fidsToDelete.append(fid)
 
             left = tracked_position.get_position().left()
@@ -106,8 +103,8 @@ class Tracker:
             centerX = left + (width / 2.0)
             centerY = top + (height / 2.0)
 
-            preX = self.vehicleList[fid].positionX
-            preY = self.vehicleList[fid].positionY
+            preX = self.vehicleList[fid].centerX
+            preY = self.vehicleList[fid].centerY
 
             deltaX = centerX - preX
             deltaY = centerY - preY
@@ -116,8 +113,8 @@ class Tracker:
 
             self.vehicleList[fid].speed = pixelDist * self.fps
 
-            self.vehicleList[fid].positionX = centerX
-            self.vehicleList[fid].positionY = centerY
+            self.vehicleList[fid].centerX = centerX
+            self.vehicleList[fid].centerY = centerY
 
             if self.vehicleList[fid].speed < self.speedLimit:
                 self.vehicleList[fid].stay += 1
