@@ -3,6 +3,6 @@ class Vehicle(object):
         self.vehicleType = None
         self.color = None
         self.speed = None
-        self.positionX = None
-        self.positionY = None
+        self.centerX = None
+        self.centerY = None
         self.stay = 0
