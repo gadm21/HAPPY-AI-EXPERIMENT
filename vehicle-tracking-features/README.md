@@ -19,7 +19,16 @@ For car plate detection
 ```
 python3 carplate.py --video 'video/A0026.mpg' --width 704 --height 576
 ```
-
+### Makefile
+Run for PLUS illegal section video
+```
+make illegal
+```
+Run for PLUS accident section video
+```
+make accident ## first video
+make accident2 ## second video
+```
 ### Use other trained models for running detect.py  
 ```
 1. Download Tensorflow model that in COCO-trained models. High COCO mAP would be better but very slow.  
