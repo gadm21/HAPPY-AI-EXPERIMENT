@@ -9,12 +9,13 @@ class Tracker:
         self.objectTrackers = {}
         self.objectID = {}
         self.fidsToDelete = []
-        self.trackingQuality = 8
+        self.trackingQuality = 10
         self.videoFrameSize = np.empty((0, 0, 0))
         self.outOfScreenThreshold = 0.4
         self.vehicleList = {}
         self.fps = None
-        self.speedLimit = 50
+        # self.speedLimit = 50
+        self.speedLimit = 1000
 
     def createTrack(self, imgDisplay, boundingBox, currentobjectID):
 
@@ -106,12 +107,19 @@ class Tracker:
             preX = self.vehicleList[fid].centerX
             preY = self.vehicleList[fid].centerY
 
-            deltaX = centerX - preX
-            deltaY = centerY - preY
+            # deltaY = abs((720-centerY)*(720-centerY)*(720-centerY)/2.0-(720-preY)*(720-preY)*(720-preY)/2.0) 
+            deltaY = abs((720-centerY)*(720-centerY)/2.0-(720-preY)*(720-preY)/2.0) 
 
-            pixelDist = math.sqrt(deltaX * deltaX + deltaY * deltaY)
+            # deltaX = centerX - preX
+            # deltaY = centerY - preY
+            pixelDist = deltaY/500
+            # pixelDist = math.sqrt(deltaX * deltaX + deltaY * deltaY)
+            if self.vehicleList[fid].speed==0:
+                self.vehicleList[fid].speed = pixelDist*self.fps
+            else:
+                self.vehicleList[fid].speed = (self.vehicleList[fid].speed*4+pixelDist*self.fps)/5
 
-            self.vehicleList[fid].speed = pixelDist * self.fps
+            # self.vehicleList[fid].speed = pixelDist * self.fps
 
             self.vehicleList[fid].centerX = centerX
             self.vehicleList[fid].centerY = centerY

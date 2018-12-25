@@ -9,11 +9,15 @@ def getRectangle(box,width,height):
 
 def validBoundingBox(rect,score,label,selectedClass):
     (xmin,ymin,xmax,ymax) = rect
-    if score < 0.7:
+    ### for illegal
+    # if score < 0.4:
+    #     return False
+    ### for accident
+    if score < 0.4:
         return False
     if label not in selectedClass:
         return False
     ## context depends - if the object does not so big or small, just filter it
-    # if ymax - ymin > 200 or xmax - xmin > 200:
-    #     return False
+    if ymax - ymin > 200 or xmax - xmin > 200:
+        return False
     return True
