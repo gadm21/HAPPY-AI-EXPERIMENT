@@ -23,7 +23,7 @@ The code on this prototype uses the code structure developed by Adrian Rosebrock
 $ python main.py --input input/KM210.1-15s.mp4 --output output/KM210.1-15s-out.avi --yolo yolo-coco
 ```
 
-main-km292-3nb.py is to be used for KM292.3NB.avi video. 
+main-km292.py is to be used for KM292.3NB.avi video. 
 
 Make sure to replace the the relevant --input and --output arguments for different videos.
 
