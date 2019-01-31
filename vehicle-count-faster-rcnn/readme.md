@@ -11,12 +11,18 @@
 
 
 `-m` parameter should be the path to the Tensorflow Object Detection frozen graph (*.pb file)
+
 `-i` parameter is the path to video file for processing (any format that opencv supports)
+
 `-o` [optional] parameter is the path to save the processed video file (*.avi file format) default='output.avi'
+
 `-f` [optional] Number of frame interval between frame processing, default=5
-`vt` [optional] Threshold value for vehicle detection',default=0.6 (0.5 can be used)
+
+`-vt` [optional] Threshold value for vehicle detection',default=0.6 (-vt 0.4 or 0.5 can be used)
+
 
 Use `-h` for more information on each file's usage.
+
 
 ### Note
 
