@@ -76,10 +76,11 @@ def check_arg(args=None):
     parser = argparse.ArgumentParser(description='Script for counting person in zone detection')
     parser.add_argument('-m', '--model',
                         help='Tensorflow object detection model path',
+                        #default='model/ssd_inception_v2_coco_2018_01_28/frozen_inference_graph.pb')
                         default='model/frozen_inference_graph.pb')
     parser.add_argument('-i', '--input',
                         help='Input video filename',
-                        default='rtsp://admin:tapway123@tapway1.dahuaddns.com/cam/realmonitor?channel=1&subtype=0')
+                        default='rtsp://admin:tapway123@tapway1.dahuaddns.com/cam/realmonitor?channel=1&subtype=0 ! decodebin ! videoconvert ! appsink max-buffers=1 drop=true')
                         #default='rtsp://admin:admin123@192.168.0.109/cam/realmonitor?channel=1&subtype=0')
                         #default='rtsp://admin:tapway123@tapway1.dahuaddns.com/cam/realmonitor?channel=1&subtype=0')
                         #default='test2.mp4')
@@ -88,7 +89,7 @@ def check_arg(args=None):
                         default='output.avi')
     parser.add_argument('-f', '--frame_interval',
                         help='Amount of frame interval between frame processing',
-                        default=5)
+                        default=10)
     parser.add_argument('-p', '--roi_points',
                         help='Points for ROI in format of (x1,y1,x2,y2)',
                         required=True)
@@ -110,6 +111,7 @@ mydb, db_cursor = db_connection()
 db_cursor.execute( "SELECT MAX(ID) FROM people")
 id_query = db_cursor.fetchone()
 print(id_query['MAX(ID)'])
+
 if id_query['MAX(ID)'] == None:
     id = 0
 else:
