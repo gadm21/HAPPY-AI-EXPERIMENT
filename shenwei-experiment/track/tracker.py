@@ -39,6 +39,8 @@ class Tracker:
         tracker.start_track(imgDisplay, dlib.rectangle(x, y, x + w, y + h))
         # tracker.start_track(imgDisplay,dlib.rectangle(x-50,y-50,x+w+50,y+h+50))
 
+		# IMPORTANT
+		# DUE TO HAVING DIFFERENT TRACKERS, THERE MIGHT BE EMPTY INDEX OF NONE TYPE
         self.faceTrackers[currentFaceID] = tracker
         self.scores[currentFaceID] = score
         self.direction[currentFaceID] = None

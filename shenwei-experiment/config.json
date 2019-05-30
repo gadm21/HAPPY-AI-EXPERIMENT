@@ -1,0 +1,85 @@
+{
+    "database": {
+		"host": "127.0.0.1",
+		"user": "root",
+		"passwd": "",
+		"database": "people_tracking"
+	},
+	"cameras": [
+		{
+			"camera_name": "cam0",
+			"num_of_tables": 6,
+			"model_path": "model/frozen_inference_graph.pb",
+			"input_filename": "test.mp4",
+			"output_filename": "cam0-output.avi",
+			"output_video_width": 640,
+			"output_video_height": 480,
+			"frame_interval": 5,
+			"people_threshold": 0.9,
+			"p": [
+				{
+					"table_id": 1,
+					"x1": 90,
+					"y1": 230,
+					"x2": 140,
+					"y2": 350
+				},
+				{
+					"table_id": 2,
+					"x1": 144,
+					"y1": 227,
+					"x2": 187,
+					"y2": 312
+				},
+				{
+					"table_id": 3,
+					"x1": 190,
+					"y1": 223,
+					"x2": 233,
+					"y2": 326
+				},
+				{
+					"table_id": 4,
+					"x1": 235,
+					"y1": 219,
+					"x2": 285,
+					"y2": 305
+				},
+				{
+					"table_id": 5,
+					"x1": 330,
+					"y1": 240,
+					"x2": 440,
+					"y2": 360
+				},
+				{
+					"table_id": 6,
+					"x1": 111,
+					"y1": 355,
+					"x2": 220,
+					"y2": 479
+				}
+			]
+		},
+		{
+			"camera_name": "cam1",
+			"num_of_tables": 4,
+			"model_path": "model/frozen_inference_graph.pb",
+			"input_filename": "rtsp://admin:tapway123@tapway1.dahuaddns.com/cam/realmonitor?channel=1&subtype=0 ! decodebin ! videoconvert ! appsink max-buffers=1 drop=true",
+			"output_filename": "cam1-output.avi",
+			"output_video_width": 640,
+			"output_video_height": 480,
+			"frame_interval": 5,
+			"people_threshold": 0.9,
+			"p": [
+				{
+					"table_id": 1,
+					"x1": 22,
+					"y1": 67,
+					"x2": 527,
+					"y2": 452
+				}
+			]
+		}
+	]
+}
