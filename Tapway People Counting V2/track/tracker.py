@@ -25,7 +25,11 @@ class Tracker:
 		self.faceTrackers = {}
 		self.scores = {}
 		self.timeStayed = {}
-		self.table = {}
+		self.table = 0
+		self.table_x1 = 0
+		self.table_y1 = 0
+		self.table_x2 = 0
+		self.table_y2 = 0
 		
 		# Object Settings
 		self.trackingQuality = 9.5
@@ -42,11 +46,15 @@ class Tracker:
 		return self.timeStayed[fid] / self.fps
 
 	# Return Table id
-	def getTableID(self, fid):
-		return self.table[fid]
+	def getTableID(self):
+		return self.table
+		
+	# Return People Num
+	def getPeopleNum(self):
+		return len(self.faceTrackers)
 	
 	# Create a new tracker for a new people #
-	def createTrack(self, imgDisplay, boundingBox, newFaceID, tableID, score):
+	def createTrack(self, fps, imgDisplay, boundingBox, newFaceID, score, tableID):
 		
 		# Coordinates of PEOPLE box
 		x1, y1, x2, y2 = boundingBox
@@ -63,7 +71,15 @@ class Tracker:
 		self.faceTrackers[newFaceID] = tracker
 		self.scores[newFaceID] = score
 		self.timeStayed[newFaceID] = 0
-		self.table[newFaceID] = int(tableID)
+		self.table = int(tableID)
+		self.fps = fps
+		
+		for table in tables:
+			if (table['table_id'] == self.table):
+				self.table_x1 = table['x1']
+				self.table_y1 = table['y1']
+				self.table_x2 = table['x2']
+				self.table_y2 = table['y2']
 		
 	# Verify if a people is previously detected #
 	def getID(self, imgDisplay, boundingBox, tableID):
@@ -78,16 +94,32 @@ class Tracker:
 		# Condition to verify tracked people #
 		matchedFid = None
 		for fid in self.faceTrackers.keys():
+			tracked_position = self.faceTrackers[fid].get_position()
+			t_x1 = int(tracked_position.left())
+			t_y1 = int(tracked_position.top())
+			t_x2 = int(tracked_position.right())
+			t_y2 = int(tracked_position.bottom())
+			
+			t_x_mid = (t_x1 + t_x2) / 2
+			t_y_mid = (t_y1 + t_y2) / 2
+		
 			# if people tracked on same table, continue tracking
-			if self.table[fid] == int(tableID):
-				self.faceTrackers[fid].start_track(imgDisplay, dlib.rectangle(x1, y1, x2, y2))
-				#self.faceTrackers[fid].update(imgDisplay)
-				matchedFid = fid
+			if self.table == int(tableID):
+				print("table matched")
+				if ((t_x1 <= x_mid <= t_x2) and
+				(t_y1 <= y_mid <= t_y2) and
+				(x1 <= t_x_mid <= x2) and
+				(y1 <= t_y_mid <= y2)):
+					self.faceTrackers[fid].start_track(imgDisplay, dlib.rectangle(x1, y1, x2, y2))
+					#confidence = self.faceTrackers[fid].update(imgDisplay)
+					#matchedFid.append(fid)
+					matchedFid = fid
+					#return matchedFid
+				#else:
+				#	self.fidsToDelete.append(fid)
 			# else delete this tracker because he has moved out of table
-			#elif self.table[fid] in range(1, num_of_tables + 1):
-			#	self.fidsToDelete.append(fid)
-			#else:
-			#	pass
+			else:
+				self.fidsToDelete.append(fid)
 		
 		# return matched ID
 		return matchedFid
@@ -97,6 +129,18 @@ class Tracker:
 		
 		for fid in self.faceTrackers.keys():
 			trackingQuality = self.faceTrackers[fid].update(imgDisplay)
+			tracked_position = self.faceTrackers[fid].get_position()
+			
+			x1 = int(tracked_position.left())
+			y1 = int(tracked_position.top())
+			x2 = int(tracked_position.right())
+			y2 = int(tracked_position.bottom())
+			
+			x_mid = (x1 + x2) / 2
+			y_mid = (y1 + y2) / 2
+			
+			if not ((self.table_x1 <= x_mid <= self.table_x2) and (self.table_y1 <= y_mid <= self.table_y2)):
+				self.fidsToDelete.append(fid)
 			
 			if trackingQuality < self.trackingQuality:
 				self.fidsToDelete.append(fid)
@@ -109,7 +153,6 @@ class Tracker:
 			self.faceTrackers.pop(fid, None)
 			self.scores.pop(fid, None)
 			self.timeStayed.pop(fid, None)
-			self.table.pop(fid, None)
 			
 		# Update time #
 		self.updateTime()
