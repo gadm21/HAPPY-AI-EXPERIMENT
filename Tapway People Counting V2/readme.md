@@ -3,6 +3,7 @@
 
 ## Prerequisites:
 1) Install Anaconda
+
 a. Windows
 - Anaconda 2019.03 (https://repo.anaconda.com/archive/Anaconda3-2019.03-Windows-x86_64.exe)
 - Full installation guide: https://docs.anaconda.com/anaconda/install/
@@ -13,8 +14,13 @@ b. Linux
 
 2) Setting up Anaconda
 - Create an environment with the following commands:
-- TO BE UPDATED...
-
+  ``` conda install -c anaconda tensorflow-gpu ```
+  ``` refer to document written in client server ```
+  ``` x ```
+  ``` x ```
+  ``` x ```
+  ``` x ```
+  
 3) MySQL Database
 - id (primary key) int
 - table_id int
@@ -32,3 +38,6 @@ b. Linux
 - press "q" to confirm
 - the ROI points are displayed on the command prompt
 - you may now insert the table_id and ROI points into configuration JSON file
+
+### Notes for JSON Configuration
+- Remember to change "num_of_tables" whenever you add a table
