@@ -21,7 +21,7 @@
     To open Anaconda Navigator on Windows, find "Anaconda Navigator" on your computer, open it as usual.
     To open Anaconda Navigator on Linux: 
     - Open a terminal and use the following command
-    - anaconda3/bin/activate
+    - source anaconda3/bin/activate
     - anaconda-navigator
 
 #### 3) Create an environment
@@ -85,6 +85,6 @@
 <p>SCUT-HEAD-Dataset-Release: https://github.com/HCIILAB/SCUT-HEAD-Dataset-Release</p>
 
 ## Important
-Please download the video from https://www.youtube.com/watch?v=qOyWdqHsstk and save it as test.mp4 and put it into the project folder for testing.
+Please download the video from https://www.youtube.com/watch?v=qOyWdqHsstk and save it as test.mp4 and put it into the project folder for testing. Make sure it is in `1080p`
 
 You can also download it from https://studentmmuedumy-my.sharepoint.com/:v:/g/personal/1161304136_student_mmu_edu_my/EcDWb3AbgjlLtcyam-cBZWwBUlikVnU42SXwKc3trFBT5Q?e=VWDT2X
