@@ -1,0 +1,14 @@
+<?xml version="1.0" ?><annotation>
+	<folder>C:\Users\shenwei\Downloads\SCUT_HEAD_Part_A\train_xml</folder>
+	<filename>PartA_00595.jpg</filename>
+	<path>PartA_00595.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1022</width>
+		<height>590</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+</annotation>

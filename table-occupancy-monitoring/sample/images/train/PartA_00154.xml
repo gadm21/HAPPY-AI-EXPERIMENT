@@ -1,0 +1,26 @@
+<?xml version="1.0" ?><annotation verified="no">
+  <folder>C:\Users\shenwei\Downloads\SCUT_HEAD_Part_A\train_xml</folder>
+  <filename>PartA_00154.jpg</filename>
+  <path>PartA_00154.jpg</path>
+  <source>
+    <database>Unknown</database>
+  </source>
+  <size>
+    <width>885</width>
+    <height>503</height>
+    <depth>3</depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>person</name>
+    <pose>Unspecified</pose>
+    <truncated>0</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>776</xmin>
+      <ymin>67</ymin>
+      <xmax>788</xmax>
+      <ymax>87</ymax>
+    </bndbox>
+  </object>
+</annotation>
