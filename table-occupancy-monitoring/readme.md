@@ -1,9 +1,9 @@
-# Tapway Table Occupancy Monitoring
+# Table Occupancy Monitoring
 ``` Status: In Development ```
 
 ## Introduction
 
-<div align="center">
+<div>
   <p>This program is developed for table occupancy monitoring in a food court. The objective of this project is to count the dwell time of customers within a drawn region around a table. The result will be saved into a database. </p>
   <p>Link to trello card: https://trello.com/c/pJCN22We/130-ai-detect-number-of-people-and-how-much-time-spent-in-zones</p>
   <a style="float:left; padding:5px">
@@ -11,7 +11,7 @@
 	</a>
 </div>
 
-## Prerequisites:
+## Prerequisites
 #### 1) Install Anaconda (latest)
     Windows: https://repo.anaconda.com/archive/Anaconda3-2019.03-Windows-x86_64.exe 
     Linux: https://repo.anaconda.com/archive/Anaconda3-2019.03-Linux-x86_64.sh 
@@ -44,7 +44,7 @@
         => dwell_time int(11) NOT NULL
         => table_id int(11) NOT NULL
 
-## Execution of the program:
+## Execution of the program
 ` Please always open a command prompt with your created environment to run the program! `
 
 #### To execute the program for monitoring: 
@@ -63,3 +63,28 @@
     - The ROI points are displayed on the command prompt
     - You may now insert the table_id and ROI points into configuration JSON file 
     (IMPORTANT: Remember to change the value of 'num_of_tables')
+
+## Explanation on Detection and Tracking
+#### Model and Dataset
+    Model used for training is ""faster_rcnn_inception_v2_coco""
+    Dataset used for training is "SCUT-HEAD-Dataset-Release"
+
+#### Dataset Details
+    We use Part A of SCUT-HEAD, 1500 images for training and 500 images for testing
+    Number of steps: 39894
+    
+#### Training Tutorial
+    A folder of images with head annotation has already been prepared for you in /sample/images/
+    
+## JSON Configuration
+    Camera setting can be edited from config.json
+
+## Resource Links
+<p>How to train a model: https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10</p>
+<p>faster_rcnn_inception_v2_coco: http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_v2_coco_2018_01_28.tar.gz</p>
+<p>SCUT-HEAD-Dataset-Release: https://github.com/HCIILAB/SCUT-HEAD-Dataset-Release</p>
+
+## Important
+Please download the video from https://www.youtube.com/watch?v=qOyWdqHsstk and save it as test.mp4 and put it into the project folder for testing.
+
+You can also download it from https://studentmmuedumy-my.sharepoint.com/:v:/g/personal/1161304136_student_mmu_edu_my/EcDWb3AbgjlLtcyam-cBZWwBUlikVnU42SXwKc3trFBT5Q?e=VWDT2X
